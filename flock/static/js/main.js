@@ -187,13 +187,12 @@ function load_planner(){
                 $(event_tmpl(event)).insertAfter($(element).find('.fc-content'));
             },
             eventMouseout: function (event, element) {
-                $(element.currentTarget).removeClass('hover');
                 $(element.currentTarget).removeClass('active');
-                $('.fc-event').css('opacity', '1');
+                $('.fc-event').removeClass('faded');
             },
             eventMouseover: function (event, element) {
                 $(element.currentTarget).addClass('active');
-                $('.fc-event').css('opacity', '0.4');
+                $('.fc-event').addClass('faded');
             }
         });
     }
