@@ -10,6 +10,7 @@ from services import person as person_service
 from services import place as place_service
 from flock.app import db_wrapper
 import json
+from datetime import datetime
 import __builtin__
 app = __builtin__.flock_app
 
@@ -249,6 +250,25 @@ def events():
     user_id = int(request.args.get("user_id", 0))
     return json_response(event_service.get(session['company_id'], start=start, end=end, show_expired=show_expired,
         limit=limit, sort_dir=sort_dir, sort_by=sort_by, offset=offset, user_id=user_id))
+
+@app.route('/events', methods=['POST'])
+@auth
+def events_post():
+    start_date = request.form.get('start_date')
+    end_date =request.form.get('end_date')
+    start_time = request.form.get('start_time')
+    end_time =request.form.get('end_time')
+    event = {
+        'title': request.form.get('title'),
+        'owner': session['user_id'],
+        'company': session['company_id'],
+        'people': [int(person_id) for person_id in json.loads(request.form.get('people'))],
+        'place': int(request.form.get('place')),
+        'start': datetime.strptime('{} {}'.format(start_date[:15], start_time), '%a %b %d %Y %H:%M'),
+        'end': datetime.strptime('{} {}'.format(end_date[:15], end_time), '%a %b %d %Y %H:%M')
+    }
+    event_service.add(event)
+    return u'{} Event Added'.format(event['title'])
 
 #### Roles ####
 

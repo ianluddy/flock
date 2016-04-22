@@ -25,7 +25,7 @@
         <!---->
     </div>
 
-    <div class="modal inmodal" id="add_event_modal" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal inmodal" id="add_event_modal" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content animated fadeIn">
                 <div class="modal-header">
@@ -35,10 +35,55 @@
                 <div class="modal-body">
                     <form id="add_event_form" event_id="" method="get" class="form-horizontal" data-toggle="validator">
                         <div class="form-group"><label class="col-sm-2 control-label">Name</label>
-                            <div class="col-sm-10"><input id="add_person_name" type="text" placeholder="Joe Bloggs" class="form-control input-lg req-input" required=""></div>
+                            <div class="col-sm-10"><input id="add_event_name" type="text" placeholder="Daily Meeting" class="form-control input-lg req-input" required=""></div>
                         </div>
                         <div class="form-group"><label class="col-sm-2 control-label">Place</label>
-                            <div class="col-sm-10"><input id="add_person_email" type="email" placeholder="jb@mail.com" class="form-control input-lg req-input" required=""></div>
+                            <div id="add_event_placepicker_wrapper" class="col-sm-10">
+                            </div>
+                        </div>
+                        <div class="form-group"><label class="col-sm-2 control-label">People</label>
+                            <div id="add_event_peoplepicker_wrapper" class="col-sm-10">
+                            </div>
+                        </div>
+                        <div class="form-group" id="add_event_datepicker_start"><label class="col-sm-2 control-label">Start</label>
+                            <div class="col-sm-10">
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control" value="{{todayDate}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group"><label class="col-sm-2 control-label"></label>
+                            <div class="col-sm-10">
+                                <div id="add_event_clockpicker_start" class="input-group clockpicker" data-autoclose="true">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-clock-o"></span>
+                                    </span>
+                                    <input type="text" class="form-control" value="09:30" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="add_event_datepicker_end"><label class="col-sm-2 control-label">End</label>
+                            <div class="col-sm-10">
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control" value="{{todayDate}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group"><label class="col-sm-2 control-label"></label>
+                            <div class="col-sm-10">
+                                <div id="add_event_clockpicker_end" class="input-group clockpicker" data-autoclose="true">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-clock-o"></span>
+                                    </span>
+                                    <input type="text" class="form-control" value="09:30" >
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group modal-footer-buttons">
@@ -628,6 +673,23 @@
     <td colspan="{{span}}" class="no_data">{{caption}}</td>
 </script>
 
+<script id="single_select_tmpl" type="text/x-handlebars-template">
+    <select id="{{ id }}" class="form-control">
+        <option></option>
+        {{#each options}}
+            <option value="{{ _id }}">{{ name }}</option>
+        {{/each}}
+    </select>
+</script>
+
+<script id="multi_select_tmpl" type="text/x-handlebars-template">
+    <select id="{{ id }}" class="form-control" multiple="multiple">
+        {{#each options}}
+            <option value="{{ _id }}">{{ name }}</option>
+        {{/each}}
+    </select>
+</script>
+
 <script id="checkbox_tmpl" type="text/x-handlebars-template">
     <div class="i-checks"><label class=""> <div class="icheckbox_square-green" style="position: relative;">
         <input {{#if id}}id="{{id}}"{{/if}} type="checkbox" {{#if checked}}checked=""{{/if}} value="" style="position: absolute; opacity: 0;">
@@ -656,6 +718,17 @@
         {{#each people}}
             <span class="label label-{{theme}}">{{initials}}</span>
         {{/each}}
+    </div>
+    <div class="event_details">
+        <i title="Edit" class="edit-btn table-btn fa fa-edit"></i>
+        <div class="event_place_wrap">
+            {{place}}
+        </div>
+        <div class="event_people_wrap">
+            {{#each people}}
+                <span class="label label-{{theme}}">{{name}}</span>
+            {{/each}}
+        </div>
     </div>
 </script>
 

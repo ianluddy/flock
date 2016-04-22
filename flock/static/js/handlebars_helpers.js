@@ -61,6 +61,14 @@ Handlebars.registerHelper('dateFormat', function(context, block) {
     };
 });
 
+Handlebars.registerHelper('todayDate', function(context, block) {
+    if (window.moment) {
+        return moment().format('DD/MM/YY');
+    }else{
+        return context;   //  moment plugin not available. return data as is.
+    };
+});
+
 Handlebars.registerHelper('isToday', function(context, block) {
   if (window.moment) {
     if (moment(context).format('DD/MM/YYYY') == moment(new Date()).format('DD/MM/YYYY')){

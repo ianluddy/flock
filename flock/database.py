@@ -239,6 +239,10 @@ class Database():
 
     #### Event ####
 
+    def event_add(self, new_event):
+        # TODO - deal with recurring events
+        return Event(**new_event).save()
+
     def event_get(self, company_id=None, start=None, end=None, show_expired=True, place_id=None, limit=None,
             offset=None, sort_by=None, sort_dir='asc', user_id=None):
 
@@ -271,7 +275,7 @@ class Database():
             results = results.order_by('-' + sort_by if sort_dir == 'asc' else sort_by)
 
         if limit:
-            offset = 0 is not offset
+            offset = 0 if offset is None else offset
             start = int(offset) * int(limit)
             end = start + int(limit)
             results = results[start:end]
