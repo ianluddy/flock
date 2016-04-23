@@ -77,7 +77,8 @@ class Person(Document, Base):
 
     def to_dict(self):
         output = self.to_mongo()
-        del output['password']
+        if 'password' in output:
+            del output['password']
         return output
 
 class Event(Document, Base):

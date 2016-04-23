@@ -122,12 +122,10 @@ class Database():
 
     def activate_user(self, token, name, password):
         validate_password(password)
-
         try:
             Person.objects(token=token).update_one(
                 name=name,
                 password=generate_password_hash(password),
-                token=None,
                 active=True
             )
         except DoesNotExist:
@@ -209,7 +207,10 @@ class Database():
 
         if token:
             query['token'] = token
-            return Person.objects.get(__raw__=query)
+            try:
+                return Person.objects.get(__raw__=query)
+            except DoesNotExist:
+                return None
 
         if role_id:
             query['role'] = int(role_id)

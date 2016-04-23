@@ -71,7 +71,17 @@ def activate_form(token):
 
     # Can't find user by this token so they must be active
     if not person:
-        return redirect(url_for('login'))
+        return render_template(
+            'login.html',
+            error_msg="Woops, we couldn't find your invitation. You'll need to ask your administrator to send a new one. "
+        )
+
+    # Account already activated
+    if person.active:
+        return render_template(
+            'login.html',
+            info_msg="Your account has already been activated. You can log in now."
+        )
 
     return render_template('activate.html', token=token, name=person.name, email=person.mail)
 

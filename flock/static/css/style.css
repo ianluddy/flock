@@ -8356,31 +8356,26 @@ body.md-skin {
     right: 10px;
     top: 10px;
 }
-#main .tabs-left li.active, #main .tabs-left li.active a{
+#main .tabs li.active, #main .tabs li.active a{
     color: #fff !important;
     background-color: #1ab394 !important;
 }
-#main .tabs-left li, #main .tabs-left li a{
+#main .tabs li, #main .tabs li a{
     border: none !important;
 }
-#main .tabs-left li a{
+#main .tabs li{
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+#main .tabs li a{
     text-align: center;
     background-color: #eee;
+    padding: 9px 20px 9px 20px;
 }
-#main .tabs-left .panel-body{
+#main .tabs .panel-body{
     border: none !important;
     background: none !important;
-    position: relative;
-    top: -10px;
-}
-#main .tabs-container .tabs-left > .nav-tabs{
-    width: 12%;
-}
-#main .tabs-container .tabs-left .panel-body{
-    width: 88%;
-}
-#main .tabs-container .tabs-left .panel-body{
-    margin-left: 12%;
+    padding-top: 35px;
 }
 .event_people{
     position: absolute;
@@ -8423,12 +8418,16 @@ body.md-skin {
     top: 10px;
     right: 10px;
 }
-.event_details .event_people_wrap, .event_details .event_place_wrap{
+.event_details div{
     margin-top: 10px;
 }
-.event_tip .event_people_wrap span{
+.event_tip .event_details_people{
+    float: right;
+}
+.event_tip .event_details_person{
     margin-bottom: 2px;
     display: inline-block;
+    float: right;
 }
 .event_tip .event_title{
     margin-top: 5px;
