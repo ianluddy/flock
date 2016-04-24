@@ -11,6 +11,13 @@ $(document).ready(function () {
     ).done(templates_loaded);
 });
 
+function heartbeat(){
+    $.ajax({
+        url: '/heartbeat',
+        type: "get"
+    });
+}
+
 $( document ).ajaxError(function( event, jqxhr ) {
     // Logout if session expires
     if( jqxhr.status == 403 )
@@ -120,7 +127,12 @@ function templates_loaded(){
     }else{
         $('.tab').first().click();
     }
-    $(document).ajaxStart(function() { Pace.restart(); });
+    $(document).ajaxSend(function(evt, request, settings) {
+        if( settings.url.indexOf('heartbeat') == -1 ) {
+            Pace.restart();
+        }
+    });
+    setInterval(heartbeat, 120000);
 }
 
 function clear(){

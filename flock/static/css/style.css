@@ -8362,10 +8362,8 @@ body.md-skin {
 }
 #main .tabs li, #main .tabs li a{
     border: none !important;
-}
-#main .tabs li{
-    border-top-right-radius: 4px;
-    border-top-left-radius: 4px;
+    margin: 0px !important;
+    border-radius: 0px !important;
 }
 #main .tabs li a{
     text-align: center;

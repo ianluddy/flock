@@ -1,7 +1,7 @@
 from flask import request, redirect, url_for, render_template, session, abort
 from functools import wraps
 from utils import json_response
-from constants import PAGE_SIZE
+from constants import PAGE_SIZE, SESSION_DURATION
 from services import notification as notification_service
 from services import role as role_service
 from services import account as account_service
@@ -11,12 +11,14 @@ from services import place as place_service
 from flock.app import db_wrapper
 import json
 from datetime import datetime
+from time import time
 import __builtin__
 app = __builtin__.flock_app
 
 def auth(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        session['stamp'] = time()
         if session.get('user_id') is None:
             session.clear()
             abort(403, 'You are no longer logged in!')
@@ -35,6 +37,13 @@ def perm(permissions):
             return test_func(*args, **kwargs)
         return wrapper
     return actualDecorator
+
+@app.route('/heartbeat')
+def heartbeat():
+    if 'stamp' not in session or time() - session['stamp'] > SESSION_DURATION:
+        session.clear()
+        abort(403, 'You are no longer logged in!')
+    return "Still logged in :)", 200
 
 @app.route('/')
 def root():

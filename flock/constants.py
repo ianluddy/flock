@@ -1,7 +1,7 @@
 # Stuff that doesn't change
 # -*- coding: utf-8 -*-
 
-SESSION_DURATION = 1200
+SESSION_DURATION = 1800
 SECRET_KEY = "\x13`4\xf5\x90:(Qs\xa2\x0f\xd8\xbe\xee\x1b5Ae!\x9b\xd4\xe8\xf1\x94"
 PERMISSIONS = [
     'view_events',

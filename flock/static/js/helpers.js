@@ -55,7 +55,7 @@ function ajax_call(options){
         url = url + '?' + $.param(options.data);
         data = '';
     }
-    $.ajax({
+    return $.ajax({
         url: url,
         type: options.type || "get",
         datatype: "json",
