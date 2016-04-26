@@ -34,10 +34,7 @@ def update(person):
 
 def delete(user_id):
     user_name = db.person_get(user_id=user_id).name
-
-    # TODO - validate
     db.person_delete(user_id)
-
     notify(u'{} deleted a Person - <b>%s</b>' % user_name, action='delete', target='person')
 
 def get(company_id=None, role_id=None, mail=None, search=None, sort_by=None, sort_dir=None, limit=None,

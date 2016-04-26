@@ -9,10 +9,8 @@ def add(role, company_id):
 def delete(role_id):
     people = db.person_get(role_id=role_id)
     role = get(role_id=role_id)
-
     if people:
         abort(400, u'There are {} {}(s) registered. Remove those People first.'.format(len(people), role.name))
-
     db.role_delete(role_id)
     notify(u'{} deleted a Role - <b>%s</b>' % role.name, action='delete', target='person')
 

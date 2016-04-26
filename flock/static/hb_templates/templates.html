@@ -126,7 +126,7 @@
                     <i class="fa fa-thumb-tack"></i>
                 </div>
                 <div class="vertical-timeline-content">
-                    <h2>{{ title }} <span style="float: right; opacity: 0.4; font-size: 0.7em;">Created by {{ owner }}</span> </h2>
+                    <h2>{{ title }} {{#not_undefined owner}}<span style="float: right; opacity: 0.4; font-size: 0.7em;">Created by {{ owner }}</span> {{/not_undefined}}</h2>
                     <p>
                         {{ place }}
                     </p>

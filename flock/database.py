@@ -164,7 +164,7 @@ class Database():
     #### Person ####
 
     def person_delete(self, person_id):
-        Person.objects(id=person_id).update_one(deleted=True)
+        Person.objects(id=person_id).delete()
 
     def person_update(self, person):
         if 'role' in person:
@@ -203,9 +203,9 @@ class Database():
             abort(400, 'That email address is already in use.')
 
     def person_get(self, company_id=None, role_id=None, user_id=None, mail=None, search=None, sort_by=None,
-                   sort_dir=None, token=None, limit=None, offset=None, deleted=False):
+                   sort_dir=None, token=None, limit=None, offset=None):
 
-        query = {'deleted': deleted}
+        query = {}
 
         if company_id:
             query['company'] = int(company_id)
@@ -299,9 +299,9 @@ class Database():
     #### Place ####
 
     def place_get(self, company_id=None, place_id=None, search=None, sort_by=None, sort_dir=None, limit=None,
-                  offset=None, deleted=False):
+                  offset=None):
 
-        query = {'deleted': deleted}
+        query = {}
 
         if company_id:
             query['company'] = company_id
@@ -332,10 +332,13 @@ class Database():
         return results, count
 
     def place_delete(self, place_id):
-        Place.objects(id=place_id).update_one(deleted=True)
+        Place.objects(id=place_id).delete()
 
     def place_add(self, place):
-        return Place(**place).save()
+        try:
+            return Place(**place).save()
+        except NotUniqueError:
+            abort(400, 'A Place with that name is already registered')
 
     def place_update(self, place):
         Place.objects(id=int(place['id'])).update_one(
@@ -352,9 +355,9 @@ class Database():
 
     #### Role ####
 
-    def role_get(self, company_id=None, role_id=None, deleted=False):
+    def role_get(self, company_id=None, role_id=None):
 
-        query = {'deleted': deleted}
+        query = {}
 
         if company_id:
             query['company'] = int(company_id)
@@ -388,7 +391,7 @@ class Database():
         )
 
     def role_delete(self, role_id):
-        Role.objects(id=role_id).update_one(deleted=True)
+        Role.objects(id=role_id).delete()
 
     #### Notifications ####
 

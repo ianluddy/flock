@@ -71,12 +71,22 @@ function ajax_call(options){
                 toastr.success(data, 'Success!', {'timeOut':2000, 'progressBar':true});
         },
         error: function(data) {
-            console.log(data);
             if (options.error != undefined)
                 options.error(data);
-            if (options.notify != false)
-                 // TODO - this better
-                 toastr.error(strip_response_msg(data.responseText), 'Oh No!', {'timeOut':3000, 'progressBar':true});
+            if (options.notify != false) {
+                if (data.responseText.indexOf('500 Internal Server Error') != -1) {
+                    toastr.error('Something went wrong, the error has been logged', 'Oh No!', {
+                        'timeOut': 3000,
+                        'progressBar': true
+                    });
+                } else {
+                    // TODO - this better
+                    toastr.error(strip_response_msg(data.responseText), 'Oh No!', {
+                        'timeOut': 3000,
+                        'progressBar': true
+                    });
+                }
+            }
         }
     });
 }

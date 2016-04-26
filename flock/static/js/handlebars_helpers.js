@@ -43,6 +43,20 @@ Handlebars.registerHelper('array_not_empty', function(list, options) {
     return options.inverse(this);
 });
 
+Handlebars.registerHelper('undefined', function(input, options) {
+    if(input == undefined) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+});
+
+Handlebars.registerHelper('not_undefined', function(input, options) {
+    if(input != undefined) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+});
+
 Handlebars.registerHelper('any_in_array', function(elems, list, options) {
     for( var i in elems ){
         if(list.indexOf(elems[i]) > -1) {

@@ -1,4 +1,5 @@
 from flock.app import db_wrapper as db
+from flask import abort
 from flock.services.notification import notify
 
 def add(new_place):
@@ -11,6 +12,8 @@ def update(updated_place):
 
 def delete(place_id):
     place_name = db.place_get(place_id=place_id).name
+    if db.event_get(place_id=place_id):
+        abort(400, 'There are Events associated with this Place')
     db.place_delete(place_id)
     notify(u'{} deleted a Place - <b>%s</b>' % place_name, action='delete', target='place')
 

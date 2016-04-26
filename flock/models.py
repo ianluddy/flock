@@ -1,8 +1,7 @@
 from mongoengine import Document, SequenceField, StringField, BooleanField, ReferenceField, ListField, DateTimeField
-from mongoengine import PULL, DENY
-from werkzeug.security import generate_password_hash, check_password_hash
+from mongoengine import PULL, DENY, NULLIFY
 from datetime import datetime
-from utils import account_token, hash_string
+from utils import account_token
 
 # TODO - add indexes
 
@@ -23,7 +22,6 @@ class Place(Document, Base):
     mail = StringField()
     phone = StringField()
     company = ReferenceField('Company', nullable=False)
-    deleted = BooleanField(default=False)
 
 class Thing(Document, Base):
     meta = {
@@ -35,7 +33,6 @@ class Thing(Document, Base):
     name = StringField(nullable=False)
     description = StringField(nullable=True)
     company = ReferenceField('Company', nullable=False)
-    deleted = BooleanField(default=False)
 
 class Role(Document, Base):
     meta = {
@@ -48,11 +45,14 @@ class Role(Document, Base):
     theme = StringField(nullable=False)
     company = ReferenceField('Company', nullable=False)
     permissions = ListField(StringField(nullable=False), nullable=False)
-    deleted = BooleanField(default=False)
 
 class Person(Document, Base):
     # TODO - allow email to be registered with multiple companies
-
+    meta = {
+        'indexes': [
+            {'fields': ('company', 'name'), 'unique': True}
+        ]
+    }
     id = SequenceField(primary_key=True)
     mail = StringField(unique=True, nullable=False)
     phone = StringField(nullable=True)
@@ -65,7 +65,6 @@ class Person(Document, Base):
     role_name = StringField(nullable=False)
     role_theme = StringField(nullable=False)
     token = StringField()
-    deleted = BooleanField(default=False)
 
     def generate_token(self):
         self.token = account_token()
@@ -85,7 +84,7 @@ class Event(Document, Base):
     id = SequenceField(primary_key=True)
     title = StringField(nullable=False)
     description = StringField(nullable=True)
-    owner = ReferenceField('Person', reverse_delete_rule=DENY)
+    owner = ReferenceField('Person', reverse_delete_rule=NULLIFY)
     start = DateTimeField(nullable=False)
     end = DateTimeField()
     people = ListField(ReferenceField('Person', reverse_delete_rule=PULL))
@@ -104,7 +103,7 @@ class Event(Document, Base):
             ),
             'start': str(self.start),
             'end': str(self.end),
-            'owner': self.owner.name,
+            'owner': self.owner.name if self.owner else None,
             'place': self.place.name if self.place else None
         }
 
