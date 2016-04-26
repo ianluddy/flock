@@ -6,6 +6,7 @@ from constants import *
 from models import *
 from utils import random_password, validate_password
 from mongoengine import NotUniqueError, DoesNotExist
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Database():
     """
