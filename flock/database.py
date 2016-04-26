@@ -54,7 +54,13 @@ class Database():
         self.create_random_notifications()
 
     def create_random_events(self):
-        titles = ['Dance Class', 'Cake Class', 'Computer Class', 'Office Meeting', 'Driving Lesson', 'Arts & Crafts']
+        meetings = [
+            ("Daily Stand Up", "Daily meeting to report on the day's upcoming tasks as well as any potential problems"),
+            ("Greeting Clients", "Get-together to greet new clients"),
+            ("Weekly Retrospective", "Weekly meeting to analyse the week's events and identify any issues"),
+            ("Marketing Brainstorm", "Monthly marketing brainstorm to identify growth points"),
+            ("Weekly One-to-One", "Weekly meeting between staff and managers to identify any issues and discuss developments"),
+        ]
         id = -1
         for i in range(-7, 7):
             for j in range(25):
@@ -63,15 +69,17 @@ class Database():
                 start = datetime.utcnow() + timedelta(days=i)
                 start = start.replace(hour=hour, minute=0)
                 end = start.replace(hour=hour + 1)
+                title, description = choice(meetings)
                 Event(
                     id=id,
                     start=start,
                     end=end,
                     company=-1,
                     people=[randint(-10, -1), randint(-10, -1)],
-                    place=randint(-5, -1),
+                    place=randint(-10, -1),
                     owner=randint(-10, -1),
-                    title=choice(titles)
+                    title=title,
+                    description=description
                 ).save()
 
     def create_random_notifications(self):

@@ -8547,6 +8547,9 @@ body.md-skin {
 .timeline-people{
     float: right;
 }
+.timeline-place{
+    opacity: 0.6;
+}
 .dashboard-header{
     position: relative;
     bottom: 8px;

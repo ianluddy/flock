@@ -18,7 +18,7 @@ MAIL_AUTH = ("api", "key-97da181732b95a21257c270bd2215529")
 MAIL_SERVER = "https://api.mailgun.net/v3/sandboxd4ff99d2df0b4dbbb94cc9e08a0391d1.mailgun.org/messages"
 MAIL_SENDER = "Flock Notifications <notifications@tryflock.com>"
 
-PAGE_SIZE = 15
+PAGE_SIZE = 10
 
 DEFAULT_DATA = {
 }
@@ -76,7 +76,8 @@ TEST_DATA = {
             "invite": True,
             "active": True,
             "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
-            "company": -1
+            "company": -1,
+            'phone': '083-4554553'
         },
         {
             "id": -2,
@@ -88,7 +89,8 @@ TEST_DATA = {
             "company": -1,
             "role": -1,
             "role_name": "Manager",
-            "role_theme": "success"
+            "role_theme": "success",
+            'phone': '083-4322123'
         },
         {
             "id": -3,
@@ -100,7 +102,8 @@ TEST_DATA = {
             "company": -1,
             "role": -1,
             "role_name": "Manager",
-            "role_theme": "success"
+            "role_theme": "success",
+            'phone': '083-3676362'
         },
         {
             "id": -4,
@@ -112,7 +115,8 @@ TEST_DATA = {
             "company": -1,
             "role": -3,
             "role_name": "Connector",
-            "role_theme": "warning"
+            "role_theme": "warning",
+            'phone': '083-5512122'
         },
         {
             "id": -5,
@@ -185,54 +189,130 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger"
+        },
+        {
+            "id": -11,
+            "mail": "dan@tryflock.com",
+            "name": "Dan White",
+            "invite": True,
+            "active": True,
+            "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
+            "company": -1,
+            "role": -2,
+            "role_name": "Trainee",
+            "role_theme": "danger"
+        },
+        {
+            "id": -12,
+            "mail": "gary@tryflock.com",
+            "name": "Gary Black",
+            "invite": True,
+            "active": True,
+            "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
+            "company": -1,
+            "role": -2,
+            "role_name": "Trainee",
+            "role_theme": "danger"
+        },
+        {
+            "id": -13,
+            "mail": "mary@tryflock.com",
+            "name": "Mary O' Sullivan",
+            "invite": True,
+            "active": True,
+            "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
+            "company": -1,
+            "role": -2,
+            "role_name": "Trainee",
+            "role_theme": "danger"
         }
     ],
     'Company': [
         {
             'id': -1,
-            'name': 'IanCO',
+            'name': 'TryFlock Ltd.',
             'owner': -1
         }
     ],
     'Place': [
         {
             'id': -1,
-            'name': 'GEC',
+            'name': 'Guinness Enterprise Centre',
             'address': 'Taylors Lane, Dublin 8',
             'mail': 'info@gec.ie',
-            'phone': '01-234234234',
+            'phone': '01-7997991',
             'company': -1
         },
         {
             'id': -2,
-            'name': 'Mannings Bakery',
-            'address': '12 Thomas St, Dublin 8',
-            'mail': 'info@mannings.ie',
-            'phone': '01-234234234',
+            'name': 'Starbucks Westmoreland St.',
+            'address': '12 Westmoreland St, Dublin 8',
+            'mail': 'info@starbucks.ie',
+            'phone': '01-7447865',
             'company': -1
         },
         {
             'id': -3,
-            'name': 'Square Tallaght',
-            'address': 'Square, Tallaght',
-            'mail': 'info@tallaght.ie',
-            'phone': '01-234234234',
+            'name': 'Cafe Noto',
+            'address': '2 Thomas St, Dublin 8',
+            'mail': 'info@noto.ie',
+            'phone': '01-7732321',
             'company': -1
         },
         {
             'id': -4,
-            'name': 'Walk Office',
-            'address': 'Walk, Walkinstown',
-            'mail': 'info@walk.ie',
-            'phone': '01-234234234',
+            'name': 'St Kevins Library',
+            'address': '2 Kevin Street, Dublin 8',
+            'mail': 'info@kevinstlibrary.ie',
+            'phone': '01-4141412',
             'company': -1
         },
         {
             'id': -5,
-            'name': 'St. Catherines Gym',
-            'address': 'Thomas St',
-            'mail': 'info@gym.ie',
-            'phone': '01-234234234',
+            'name': 'Galway Office',
+            'address': '12 William St, Galway',
+            'mail': 'galway@tryflock.com',
+            'phone': '091-755795',
+            'company': -1
+        },
+        {
+            'id': -6,
+            'name': 'Room 101',
+            'address': 'Head Office, Dublin 8',
+            'mail': 'info@tryflock.com',
+            'phone': '01-5551234',
+            'company': -1
+        },
+        {
+            'id': -7,
+            'name': 'Room 102',
+            'address': 'Head Office, Dublin 8',
+            'mail': 'info@tryflock.com',
+            'phone': '01-5551234',
+            'company': -1
+        },
+        {
+            'id': -8,
+            'name': 'Room 103',
+            'address': 'Head Office, Dublin 8',
+            'mail': 'info@tryflock.com',
+            'phone': '01-5551234',
+            'company': -1
+        },
+        {
+            'id': -9,
+            'name': 'Room 104',
+            'address': 'Head Office, Dublin 8',
+            'mail': 'info@tryflock.com',
+            'phone': '01-5551234',
+            'company': -1
+        },
+        {
+            'id': -10,
+            'name': 'Cork Office',
+            'address': '12 Bridge Street, Cork',
+            'mail': 'cork@tryflock.com',
+            'phone': '07-5551234',
             'company': -1
         },
     ]

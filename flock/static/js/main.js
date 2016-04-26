@@ -345,7 +345,7 @@ function load_planner(){
 function load_people(){
     var sort_by, sort_dir, search, roles, people, count;
     var page = 0;
-    var limit = 15;
+    var limit = 10;
 
     function draw_people(data){
         if( data.data.length == 0){
