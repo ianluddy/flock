@@ -216,10 +216,73 @@
             <div id="upcoming-timeline-wrapper" class="col-lg-8">
                 <h3 class="dashboard-header dashboard-header-events"> Upcoming Events </h3>
             </div>
-
             <div id="notifications-wrapper" class="col-lg-4">
                 <h3 class="dashboard-header"> Notifications </h3>
             </div>
+        </div>
+    </div>
+</script>
+
+<script id="account_tmpl" type="text/x-handlebars-template">
+    <div id="account_pane" class="pane animated fadeInDown">
+        <div class="col-md-6">
+            <h3 class="account-header"> Account </h3>
+            <form id="account_info_form" place_id="" class="form-horizontal" data-toggle="validator">
+                <div class="form-group">
+                    <label class="col-md-2">Name</label>
+                    <div class="col-md-8">
+                      <input id="account_name" type="text" class="form-control input-lg req-input" required="">
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2">Phone</label>
+                    <div class="col-md-8">
+                        <input id="account_phone" type="text" placeholder="01-1234567" class="form-control input-lg"></input>
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2">Email</label>
+                    <div class="col-md-8">
+                        <input id="account_email" type="email" disabled="" class="form-control input-lg">
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2"></label>
+                    <div class="col-md-8">
+                        <button id="update_account_btn" type="submit" class="btn btn-primary">Update Details</button>
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h3 class="account-header"> Password </h3>
+            <form id="password_form" class="form-horizontal" data-toggle="validator">
+                <div class="form-group">
+                    <label class="col-md-2">Current Password</label>
+                    <div class="col-md-8">
+                      <input id="password_current" type="password" class="form-control input-lg req-input" required="">
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2">New Password</label>
+                    <div class="col-md-8">
+                        <input id="password_new" type="password" class="form-control input-lg req-input" required="">
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2"></label>
+                    <div class="col-md-8">
+                        <button id="change_password_btn" class="btn btn-primary">Change Password</button>
+                    </div>
+                    <label class="col-md-2"></label>
+                </div>
+            </form>
         </div>
     </div>
 </script>
@@ -336,6 +399,7 @@
                     <div class="tab-content ">
                         <div id="setting-tab-1" class="tab-pane active">
                             <div class="panel-body">
+                                <div class="section_title">Roles and Permissions</div>
                                 <div class="spacer"></div>
                                 <div id="role_table_holder"></div>
                             </div>

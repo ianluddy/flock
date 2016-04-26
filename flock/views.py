@@ -130,6 +130,30 @@ def register():
     )
     return login_user()
 
+@app.route('/user', methods=['GET'])
+def user():
+    return json_response(person_service.get(session['company_id'], mail=session['email']).to_dict())
+
+@app.route('/user', methods=['POST'])
+def user_post():
+    user = {
+        'id': session['user_id'],
+        'name': request.form.get("name"),
+        'phone': request.form.get("phone"),
+        'mail': session['email']
+    }
+    person_service.update(user)
+    session['user_name'] = user['name']
+    return 'Account Updated', 200
+
+@app.route('/password', methods=['POST'])
+def password_post():
+    current = request.form.get("current")
+    new = request.form.get("new")
+    db_wrapper.authenticate_user(session['email'], current)
+    db_wrapper.update_password(session['email'], new)
+    return "Password Updated", 200
+
 @app.route('/login_user', methods=['POST'])
 def login_user():
     session['user_id'], session['user_name'], session['company_id'], session['company_name'], session['email'] = \

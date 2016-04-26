@@ -1,11 +1,12 @@
-var user_id, page_main, loader, permissions;
+var user_id, page_main, loader, permissions, account;
 var people, places, things;
 
 $(document).ready(function () {
     page_main = $("#main");
     loader = $("#loader");
-    user_id = parseInt($(".account_info .fa").attr("user_id"));
-    permissions = $(".account_info .fa").attr("permissions");
+    account = $("#account");
+    user_id = parseInt($(account).attr("user_id"));
+    permissions = $(account).attr("permissions");
     $.when(
         ajax_load('/templates', {}, add_templates)
     ).done(templates_loaded);
@@ -32,6 +33,7 @@ function compile_templates(){
     // Templates
     people_tmpl = Handlebars.compile($("#people_tmpl").html());
     dashboard_tmpl = Handlebars.compile($("#dashboard_tmpl").html());
+    account_tmpl = Handlebars.compile($("#account_tmpl").html());
     planner_tmpl = Handlebars.compile($("#planner_tmpl").html());
     events_tmpl = Handlebars.compile($("#events_tmpl").html());
     things_tmpl = Handlebars.compile($("#things_tmpl").html());
@@ -58,6 +60,13 @@ function compile_templates(){
 
 function add_handlers(){
     $('.tab').click(tab_handler);
+    $('#account_link').click(account_link_handler);
+}
+
+function account_link_handler(){
+    $(".tab").removeClass('active');
+    $(account).addClass('active')
+    load_account();
 }
 
 function tab_handler(){
@@ -65,6 +74,7 @@ function tab_handler(){
     var target = $(this).attr('target').toString();
     window['load_' + target]();
     $(this).addClass('active').siblings('.tab').removeClass('active');
+    $(account).removeClass('active');
 }
 
 function dashboard(){
@@ -118,11 +128,15 @@ function templates_loaded(){
     compile_templates();
     add_handlers();
     if ( window.location.hash != '' ){
-        var target = $('.tab[target=' + window.location.hash.replace('#', '') + ']');
-        if( $(target).length > 0 ){
-            $(target).click();
+        if( window.location.hash == '#account' ){
+            account_link_handler();
         }else{
-            $('.tab').first().click();
+            var target = $('.tab[target=' + window.location.hash.replace('#', '') + ']');
+            if( $(target).length > 0 ){
+                $(target).click();
+            }else{
+                $('.tab').first().click();
+            }
         }
     }else{
         $('.tab').first().click();
@@ -143,6 +157,50 @@ function loadr(show){
     $(loader).toggle(show);
 }
 
+function load_account(){
+    $(page_main).html(account_tmpl());
+    ajax_call({
+        'url': '/user',
+        'type': 'get',
+        'notify': false,
+        'success': function(input){
+            $('#account_name').val(input['name']);
+            $('#account_phone').val(input['phone']);
+            $('#account_email').val(input['mail']);
+        }
+    });
+
+    $('#update_account_btn').on('click', function(e){
+        e.preventDefault();
+        ajax_call({
+            'url': '/user',
+            'type': 'post',
+            'data': {
+                'name': $('#account_name').val(),
+                'phone': $('#account_phone').val()
+            },
+            "success": function(){
+                $("#account a span").text($('#account_name').val());
+            }
+        });
+    });
+
+    $('#change_password_btn').on('click', function(e){
+        e.preventDefault();
+        ajax_call({
+            'url': '/password',
+            'type': 'post',
+            'data': {
+                'current': $('#password_current').val(),
+                'new': $('#password_new').val()
+            },
+            "success": function(){
+                $('#password_current').val('');
+                $('#password_new').val('');
+            }
+        });
+    });
+}
 function load_dashboard(){
     $(page_main).html(dashboard_tmpl());
     ajax_call({

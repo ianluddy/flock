@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flock | Dashboard</title>
+    <title>Flock</title>
     <link href="css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/fullcalendar.css" rel="stylesheet">
@@ -63,17 +63,21 @@
                         {% endif %}
                     </ul>
                     <ul class="nav navbar-top-links navbar-right">
-                        <span class="account_info">
-                            <i class="fa fa-user" user_id="{{ user_id }}" permissions="{{ permissions }}"></i>
-                            <span class="m-t-xs">
-                                <strong class="font-bold"> {{ user_name }} </strong>
-                            </span>
-                            <span class="text-muted text-xs">{{ company_name }} </span>
-                        </span>
-                        <li>
-                            <a href="logout">
-                                <i class="fa fa-sign-out"></i> Log out
-                            </a>
+                        <li id="account" class="dropdown account-info" user_id="{{ user_id }}" permissions="{{ permissions }}">
+                            <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span>{{ user_name }}</span>
+                            <i style="margin-left: 6px;" class="fa fa-cog"></i></a>
+                            <ul role="menu" class="dropdown-menu">
+                                <li>
+                                    <a id="account_link" href="#account"><i class="fa fa-cog"></i>Account Settings</a>
+                                </li>
+                                <li>
+                                    <a href="logout"><i class="fa fa-sign-out"></i>Logout</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="company_info">
+                            <span class="company text-muted text-xs">{{ company_name }} </span>
                         </li>
                     </ul>
                 </div>

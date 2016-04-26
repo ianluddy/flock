@@ -8451,11 +8451,51 @@ body.md-skin {
     border-left: 3px solid #1ab394;
 }
 .account_info{
-    border-right: 1px solid #aaa;
+    line-height: 50px;
     padding-right: 7px;
 }
+.account_info a{
+    padding: 0 !important;
+    display: inline-block !important;
+    font-size: 1em !important;
+}
 .account_info span{
-    margin-left: 4px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.account_image{
+    height: 200px;
+    width: 200px;
+    border: 4px dashed #d7d7d7;
+}
+.account-header{
+    opacity: 0.5;
+    font-weight: normal;
+    padding: 3px 10px 20px 10px;
+    text-align: center;
+}
+.top-navigation .dropdown-menu > li > a{
+    font-size: 12px !important;
+}
+#account_pane label{
+    padding: 5px 15px 5px 15px;
+    text-align: right;
+    /*font-weight: lighter;*/
+    /*font-size: 1.2em;*/
+}
+#account .dropdown-menu i{
+    position: relative !important;
+    right: 10px !important;
+}
+#account_pane .btn{
+    float: right;
+}
+#account .dropdown-toggle{
+    padding: 15px 5px;
+    font-size: inherit;
+}
+.company_info{
+    margin-right: 6px !important;
 }
 #page-wrapper{
     padding: 0px;

@@ -131,6 +131,12 @@ class Database():
         except DoesNotExist:
             abort(400, "Invitation expired. A new invitation will need to be sent. Please contact your Organisation's administrator.")
 
+    def update_password(self, mail, password):
+        validate_password(password)
+        Person.objects(mail=mail).update_one(
+            password=generate_password_hash(password)
+        )
+
     def generate_token(self, mail):
         token = account_token()
         Person.objects(mail=mail).update_one(token=token, invite=True)
@@ -161,15 +167,22 @@ class Database():
         Person.objects(id=person_id).update_one(deleted=True)
 
     def person_update(self, person):
-        role = Role.objects(id=person['role']).get()
-        Person.objects(id=int(person['id'])).update_one(
-            role=role,
-            role_name=role.name,
-            role_theme=role.theme,
-            mail=person['mail'],
-            name=person['name'],
-            phone=person['phone'],
-        )
+        if 'role' in person:
+            role = Role.objects(id=person['role']).get()
+            Person.objects(id=int(person['id'])).update_one(
+                role=role,
+                role_name=role.name,
+                role_theme=role.theme,
+                mail=person['mail'],
+                name=person['name'],
+                phone=person['phone'],
+            )
+        else:
+            Person.objects(id=int(person['id'])).update_one(
+                mail=person['mail'],
+                name=person['name'],
+                phone=person['phone'],
+            )
 
     def person_add(self, new_person):
 
