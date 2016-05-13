@@ -15,26 +15,45 @@ from time import time
 import __builtin__
 app = __builtin__.flock_app
 
-def auth(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        session['stamp'] = time()
-        if session.get('user_id') is None:
-            session.clear()
-            abort(403, 'You are no longer logged in!')
-        # TODO - verify user and company match
-        return f(*args, **kwargs)
-    return decorated_function
-
-def perm(permissions):
+def auth(permissions=None):
     def actualDecorator(test_func):
         @wraps(test_func)
         def wrapper(*args, **kwargs):
+
+            session['stamp'] = time()
+            if session.get('user_id') is None:
+                session.clear()
+                abort(403, 'You are no longer logged in!')
+
             user_permissions = db_wrapper.permissions_get(session['user_id'])
-            for permission in permissions:
+            for permission in permissions or []:
                 if not user_permissions or permission not in user_permissions:
-                    abort(400, "You don't have permission to do this :(")
+                    abort(400, "You don't have permission to do this!")
+
             return test_func(*args, **kwargs)
+        return wrapper
+    return actualDecorator
+
+def parse_args(string_args=None, int_args=None, json_args=None, bool_args=None):
+    def actualDecorator(test_func):
+        @wraps(test_func)
+        def wrapper(*args, **kwargs):
+            input = request.form
+            output = {}
+            for key in string_args or []:
+                output[key] = input.get(key)
+
+            for key in int_args or []:
+                output[key] = int(input.get(key, 0))
+
+            for key in json_args or []:
+                input_json = input.get(key)
+                output[key] = json.loads(input_json) if input_json else input_json
+
+            for key in bool_args or []:
+                output[key] = bool(input.get(key, False))
+
+            return test_func(output, *args, **kwargs)
         return wrapper
     return actualDecorator
 
@@ -64,7 +83,6 @@ def root():
     )
 
 @app.route('/templates')
-@auth
 def templates():
     return app.send_static_file('hb_templates/templates.html')
 
@@ -95,16 +113,15 @@ def activate_form(token):
     return render_template('activate.html', token=token, name=person.name, email=person.mail)
 
 @app.route('/activate', methods=['POST'])
-def activate_account():
-    token = request.form.get("token")
-    name = request.form.get("name")
-    password = request.form.get("password")
-    mail = request.form.get("email")
-
-    db_wrapper.activate_user(token, name, password)
+@parse_args(string_args=['token', 'name', 'password', 'email'])
+def activate_account(account):
+    db_wrapper.activate_user(
+        account['token'],
+        account['name'],
+        account['password']
+    )
     session['user_id'], session['user_name'], session['company_id'], session['company_name'], session['email'] = \
-        db_wrapper.authenticate_user(mail, password)
-
+        db_wrapper.authenticate_user(account['email'], account['password'])
     return 'Account Activated :)', 200
 
 @app.route('/forgot_password')
@@ -121,233 +138,203 @@ def registration():
     return render_template('register.html')
 
 @app.route('/register', methods=['POST'])
-def register():
+@parse_args(string_args=['email', 'name', 'password', 'company'])
+def register(user):
     db_wrapper.register_user(
-        request.form.get("name"),
-        request.form.get("mail"),
-        request.form.get("password"),
-        request.form.get("company"),
+        user["name"],
+        user["email"],
+        user["password"],
+        user["company"]
     )
     return login_user()
 
 @app.route('/user', methods=['GET'])
 def user():
-    return json_response(person_service.get(session['company_id'], mail=session['email']).to_dict())
+    return json_response(person_service.get(session['company_id'], email=session['email']).to_dict())
 
 @app.route('/user', methods=['POST'])
-def user_post():
-    user = {
+@parse_args(string_args=['phone', 'name'])
+def user_post(user):
+    user.update({
         'id': session['user_id'],
-        'name': request.form.get("name"),
-        'phone': request.form.get("phone"),
-        'mail': session['email']
-    }
+        'email': session['email']
+    })
     person_service.update(user)
     session['user_name'] = user['name']
     return 'Account Updated', 200
 
 @app.route('/password', methods=['POST'])
-def password_post():
-    current = request.form.get("current")
-    new = request.form.get("new")
-    db_wrapper.authenticate_user(session['email'], current)
-    db_wrapper.update_password(session['email'], new)
+@parse_args(string_args=['new', 'current'])
+def password_post(password):
+    db_wrapper.authenticate_user(session['email'], password['current'])
+    db_wrapper.update_password(session['email'], password['new'])
     return "Password Updated", 200
 
 @app.route('/login_user', methods=['POST'])
-def login_user():
+@parse_args(string_args=['password', 'email'])
+def login_user(user):
     session['user_id'], session['user_name'], session['company_id'], session['company_name'], session['email'] = \
-        db_wrapper.authenticate_user(request.form.get('mail'), request.form.get('password'))
+        db_wrapper.authenticate_user(user['email'], user['password'])
     return 'Logged in :)', 200
 
 @app.route('/reset_user', methods=['POST'])
 def reset_user():
-    account_service.reset(request.form.get("mail"))
+    account_service.reset(request.form.get("email"))
     return 'Password reset. You should receive an email shortly :)', 200
 
 #### People ####
 
 @app.route('/people', methods=['DELETE'])
-@perm(['edit_people'])
-@auth
-def people_delete():
-    if request.form.get("id") == str(session['user_id']):
+@auth(['edit_people'])
+@parse_args(int_args=['id'], string_args=['name'])
+def people_delete(person):
+    if person["id"] == session['user_id']:
         abort(400, "You can't delete your own account :)")
-    person_service.delete(request.form.get("id"))
-    return u'{} has been deleted'.format(request.form.get("name")), 200
+    person_service.delete(person["id"])
+    return u'{} has been deleted'.format(person["name"]), 200
 
 @app.route('/people', methods=['GET'])
-@auth
+@auth()
 def people():
-    search = request.args.get("search", None)
-    sort_by = request.args.get("sort_by", None)
-    sort_dir = request.args.get("sort_dir", None)
-    limit = request.args.get("limit", PAGE_SIZE)
-    offset = request.args.get("offset", 0)
-    data, count = person_service.get(session['company_id'], search=search, sort_by=sort_by, sort_dir=sort_dir, limit=limit, offset=offset)
+    data, count = person_service.get(
+        session['company_id'],
+        search=request.args.get('search'),
+        sort_by=request.args.get('sort_by'),
+        sort_dir=request.args.get('sort_dir'),
+        limit=int(request.args.get('limit', PAGE_SIZE)),
+        offset=int(request.args.get('offset', 0))
+    )
     return json_response({'data': data, 'count': count})
 
 @app.route('/people', methods=['PUT'])
-@perm(['edit_people'])
-@auth
-def people_put():
-    invite = request.form.get("invite")
-    new_person = {
-        'id': request.form.get("id"),
-        'name': request.form.get("name"),
-        'mail': request.form.get("mail"),
-        'role': request.form.get("type"),
-        'phone': request.form.get("phone"),
-        'invite': True if invite else False,
-        'company': session['company_id']
-    }
-    person_service.update(new_person)
-    return u'{} has been updated'.format(new_person['name']), 200
+@auth(['edit_people'])
+@parse_args(string_args=['name', 'email', 'phone'], bool_args=['invite'], int_args=['id', 'role'])
+def people_put(person):
+    person['company'] = session['company_id']
+    person_service.update(person)
+    return u'{} has been updated'.format(person['name']), 200
 
 @app.route('/people', methods=['POST'])
-@perm(['edit_people'])
-@auth
-def people_post():
-    invite = request.form.get("invite")
-    new_person = {
-        'name': request.form.get("name"),
-        'mail': request.form.get("mail"),
-        'role': request.form.get("type"),
-        'phone': request.form.get("phone"),
-        'invite': True if invite else False,
-        'company': session['company_id']
-    }
-    person_service.add(new_person, session['user_id'], session['company_id'])
-    return u'{} has been added'.format(new_person['name']), 200
-
+@auth(['edit_people'])
+@parse_args(string_args=['name', 'email', 'phone'], bool_args=['invite'], int_args=['role'])
+def people_post(person):
+    person['company'] = session['company_id']
+    person_service.add(person, session['user_id'], session['company_id'])
+    return u'{} has been added'.format(person['name']), 200
 
 @app.route('/people/invite', methods=['POST'])
-@perm(['edit_people'])
-@auth
+@auth(['edit_people'])
 def people_invite():
-    email = request.form.get("mail")
+    email = request.form.get("email")
     person_service.invite(email, session['user_id'], session['company_id'])
     return u'Invitation has been sent to {}'.format(email), 200
 
 #### Places ####
 
 @app.route('/places', methods=['DELETE'])
-@perm(['edit_places'])
-@auth
+@auth(['edit_places'])
 def places_delete():
     place_service.delete(request.form.get("id"))
     return u'{} has been deleted'.format(request.form.get("name")), 200
 
 @app.route('/places', methods=['GET'])
-@auth
+@auth()
 def places():
-    search = request.args.get("search")
-    sort_by = request.args.get("sort_by")
-    sort_dir = request.args.get("sort_dir")
-    limit = request.args.get("limit", PAGE_SIZE)
-    offset = request.args.get("offset", 0)
-    data, count = place_service.get(session['company_id'], search=search, sort_by=sort_by, sort_dir=sort_dir, limit=limit, offset=offset)
+    data, count = place_service.get(
+        session['company_id'],
+        search=request.args.get('search'),
+        sort_by=request.args.get('sort_by'),
+        sort_dir=request.args.get('sort_dir'),
+        limit=int(request.args.get('limit', PAGE_SIZE)),
+        offset=int(request.args.get('offset', 0))
+    )
     return json_response({'data': data, 'count': count})
 
 @app.route('/places', methods=['POST'])
-@perm(['edit_places'])
-@auth
-def places_add():
-    new_place = {
-        'name': request.form.get("name"),
-        'mail': request.form.get("email"),
-        'phone': request.form.get("phone"),
-        'address': request.form.get("address"),
-        'company': session['company_id']
-    }
-    place_service.add(new_place)
-    return u'{} has been added'.format(new_place['name']), 200
+@auth(['edit_places'])
+@parse_args(string_args=['name', 'email', 'phone', 'address'], int_args=['id'])
+def places_add(place):
+    place['company'] = session['company_id']
+    place_service.add(place)
+    return u'{} has been added'.format(place['name']), 200
 
 @app.route('/places', methods=['PUT'])
-@perm(['edit_places'])
-@auth
-def places_update():
-    updated_place = {
-        'id': request.form.get("id"),
-        'name': request.form.get("name"),
-        'mail': request.form.get("email"),
-        'phone': request.form.get("phone"),
-        'address': request.form.get("address"),
-        'company': session['company_id']
-    }
-    place_service.update(updated_place)
-    return u'{} has been updated'.format(updated_place['name']), 200
+@auth(['edit_places'])
+@parse_args(string_args=['name', 'email', 'phone', 'address'], int_args=['id'])
+def places_update(place):
+    place['company'] = session['company_id']
+    place_service.update(place)
+    return u'{} has been updated'.format(place['name']), 200
 
 #### Events ####
 
 @app.route('/events', methods=['GET'])
-@auth
+@auth()
 def events():
-    start = request.args.get("start")
-    end = request.args.get("end")
-    show_expired = request.args.get("show_expired", True)
-    limit = request.args.get("limit")
-    offset = request.args.get("offset")
-    sort_by = request.args.get("sort_by")
-    sort_dir = request.args.get("sort_dir")
-    user_id = int(request.args.get("user_id", 0))
-    return json_response(event_service.get(session['company_id'], start=start, end=end, show_expired=show_expired,
-        limit=limit, sort_dir=sort_dir, sort_by=sort_by, offset=offset, user_id=user_id))
+    return json_response(event_service.get(
+        session['company_id'],
+        event_id=int(request.args.get('id', 0)),
+        user_id=int(request.args.get('user_id', 0)),
+        start=request.args.get('start'),
+        end=request.args.get('end'),
+        hide_expired='hide_expired' in request.args,
+        limit=int(request.args.get('limit', PAGE_SIZE)) if 'limit' in request.args else None,
+        sort_dir=request.args.get('sort_dir'),
+        sort_by=request.args.get('sort_by'),
+        offset=int(request.args.get('offset', 0)) if 'offset' in request.args else None,
+    ))
 
 @app.route('/events', methods=['POST'])
-@auth
-def events_post():
-    start_date = request.form.get('start_date')
-    end_date =request.form.get('end_date')
-    start_time = request.form.get('start_time')
-    end_time =request.form.get('end_time')
-    event = {
-        'title': request.form.get('title'),
+@auth(['edit_places'])
+@parse_args(string_args=['title', 'description', 'start', 'end'], int_args=['place'], json_args=['people'])
+def events_post(event):
+    event.update({
         'owner': session['user_id'],
         'company': session['company_id'],
-        'people': [int(person_id) for person_id in json.loads(request.form.get('people'))],
-        'place': int(request.form.get('place')),
-        'start': datetime.strptime('{} {}'.format(start_date[:15], start_time), '%a %b %d %Y %H:%M'),
-        'end': datetime.strptime('{} {}'.format(end_date[:15], end_time), '%a %b %d %Y %H:%M')
-    }
+        'people': [int(person_id) for person_id in event['people']],
+        'start': datetime.strptime(event['start'], '%a %b %d %Y %H:%M'),
+        'end': datetime.strptime(event['end'], '%a %b %d %Y %H:%M'),
+    })
     event_service.add(event)
     return u'{} Event Added'.format(event['title'])
+
+@app.route('/events', methods=['PUT'])
+@auth(['edit_places'])
+@parse_args(string_args=['title', 'description', 'start', 'end'], int_args=['id', 'place'], json_args=['people'])
+def events_put(event):
+    event.update({
+        'owner': session['user_id'],
+        'company': session['company_id'],
+        'people': [int(person_id) for person_id in event['people']],
+        'start': datetime.strptime(event['start'], '%a %b %d %Y %H:%M'),
+        'end': datetime.strptime(event['end'], '%a %b %d %Y %H:%M'),
+    })
+    event_service.update(event)
+    return u'{} Event Updated'.format(event['title'])
 
 #### Roles ####
 
 @app.route('/roles', methods=['GET'])
-@auth
+@auth()
 def roles():
     return json_response(role_service.get(company_id=session['company_id']))
 
 @app.route('/roles', methods=['PUT'])
-@perm(['edit_system_settings'])
-@auth
-def roles_update():
-    role = {
-        "theme": request.form.get("theme"),
-        "name": request.form.get("name"),
-        "permissions": json.loads(request.form.get("permissions")),
-        "id": int(request.form.get('id'))
-    }
+@auth(['edit_system_settings'])
+@parse_args(int_args=['id'], string_args=['theme', 'name'], json_args=['permissions'])
+def roles_update(role):
     role_service.update(role)
     return u'{} Role Updated'.format(role['name']), 200
 
 @app.route('/roles', methods=['POST'])
-@perm(['edit_system_settings'])
-@auth
-def roles_add():
-    role = {
-        "theme": request.form.get("theme"),
-        "name": request.form.get("name"),
-        "permissions": json.loads(request.form.get("permissions"))
-    }
+@auth(['edit_system_settings'])
+@parse_args(string_args=['theme', 'name'], json_args=['permissions'])
+def roles_add(role):
     role_service.add(role, session['company_id'])
-    return u'{} Role Added'.format(request.form.get("name")), 200
+    return u'{} Role Added'.format(role["name"]), 200
 
 @app.route('/roles', methods=['DELETE'])
-@perm(['edit_system_settings'])
-@auth
+@auth(['edit_system_settings'])
 def roles_delete():
     role_id = request.form.get("id")
     role = role_service.get(role_id=role_id)
@@ -357,11 +344,12 @@ def roles_delete():
 #### Notifications ####
 
 @app.route('/notifications', methods=['GET'])
-@auth
+@auth()
 def notifications():
-    limit = request.args.get("limit")
-    offset = request.args.get("offset")
-    sort_by = request.args.get("sort_by")
-    sort_dir = request.args.get("sort_dir")
-    return json_response(notification_service.get(company_id=session['company_id'], limit=limit, offset=offset,
-                                                  sort_by=sort_by, sort_dir=sort_dir))
+    return json_response(notification_service.get(
+        company_id=session['company_id'],
+        limit=int(request.args.get('limit', PAGE_SIZE)),
+        offset=int(request.args.get('offset', 0)),
+        sort_by=request.args.get('sort_by'),
+        sort_dir=request.args.get('sort_dir')
+    ))

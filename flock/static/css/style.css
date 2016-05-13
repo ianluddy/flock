@@ -1189,7 +1189,6 @@ button.dim:active:before {
   overflow: hidden;
   padding: 4px 12px;
   position: relative;
-  width: 100%;
 }
 .chosen-container-multi .chosen-choices li.search-choice {
   background: #f1f1f1;
@@ -3455,7 +3454,7 @@ video {
     position: inherit;
     margin: 0 0 0 240px;
     min-height: 2002px;
-  }
+}
 }
 .title-action {
   text-align: right;
@@ -8398,11 +8397,18 @@ body.md-skin {
     font-size: 1em;
     z-index: 200 !important;
     opacity: 1 !important;
-    min-height: 90px;
+    min-height: 120px;
     min-width: 200px;
+
 }
-.fc-event.active .event_people{
+.fc-event.active .event_people, .fc-event .event_place{
     display: none;
+}
+.fc-event.active .event_place{
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 10px;
 }
 .fc-event.active .event_details{
     display: block;
@@ -8410,11 +8416,6 @@ body.md-skin {
 .event_tip{
     background-color: white;
     padding: 0px;
-}
-.event_details .edit-btn{
-    position: absolute;
-    top: 10px;
-    right: 10px;
 }
 .event_details div{
     margin-top: 10px;
@@ -8447,8 +8448,11 @@ body.md-skin {
     margin-top: 10px;
     opacity: 0.6;
 }
-.req-input{
-    border-left: 3px solid #1ab394;
+.req-input, #add_event_placepicker_wrapper .chosen-container{
+    border-left: 3px solid #1ab394 !important;
+}
+.req-input-right{
+    border-right: 3px solid #1ab394 !important;
 }
 .account_info{
     line-height: 50px;
@@ -8634,6 +8638,9 @@ ul.slim-dropdown-menu .label{
 }
 #upcoming_placeholder{
 }
+/*#add_event_modal .modal-dialog{*/
+    /*width: 1000px;*/
+/*}*/
 .clockpicker-popover, .select2-dropdown{
     z-index: 2300 !important;
 }
@@ -8677,4 +8684,41 @@ ul.slim-dropdown-menu .label{
     #places_tab, #people_tab, #system_tab{
         display: none;
     }
+    #add_event_modal .modal-dialog{
+        width: 600px;
+    }
+}
+@media (min-width: 1200px){
+    #add_event_modal .modal-dialog{
+        width: 1000px;
+    }
+}
+.chosen-single, .chosen-drop, .chosen-search, .chosen-choices {
+    background: none !important;
+    background-color: #fff !important;
+    border-radius: 0 !important;
+    border-color: #ddd !important;
+    outline: none !important;
+    box-shadow: none !important;
+    width: 350px !important;
+    /*height: 46px !important;*/
+}
+.chosen-single span{
+    position: relative !important;
+    top: 2px !important;
+    left: 3px !important;
+}
+.val_error{
+    z-index: 100;
+    color: #1ab394;
+    display: inline-block ;
+    margin-left: 5px;
+    position: absolute;
+    right: 6%;
+    line-height: 270%;
+    top: 12%;
+    font-weight: normal;
+}
+.val_error i{
+    padding-left: 3px;
 }

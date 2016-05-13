@@ -173,3 +173,49 @@ function add_file_uploader(target, api_call, callback) {
         },
     }).on('dragleave', function(){$('#file_dropzone').removeClass('accept');})
 }
+
+function default_evaluator(element){
+    if ( $(element).val().replace(' ','').length > 0 ){
+        return true;
+    }
+    return 'Required';
+}
+
+function email_evaluator(element){
+    var valid_or_warning = default_evaluator(element);
+    if ( valid_or_warning != true ){
+        return valid_or_warning;
+    }else{
+        var re = /\S+@\S+\.\S+/;
+        if( re.test($(element).val()) ){
+            return true;
+        }
+        return 'Valid Email Required';
+    }
+}
+
+function valid8(validator){
+    for( var i in validator ){
+        $('.val_error').remove();
+        var target = validator[i];
+        $(target.elem).off('change.validate').off('keyup.validate');
+        var evaluator = target.eval === undefined ? default_evaluator : target.eval;
+        var valid_or_warning = evaluator(target.elem);
+        if( valid_or_warning != true ){
+            var remove_validation = function(e){
+                var code = e.keyCode || e.which;
+                if(code != 13) {
+                    $(this).siblings('.val_error').remove();
+                    $(target.elem).off('keyup.validate').off('change.validate');
+                }
+            };
+            $(target.elem).on('change.validate', remove_validation);
+            $(target.elem).on('keyup.validate', remove_validation);
+            if( $(target.elem).siblings('.val_error').length == 0 ) {
+                $(target.elem).parent().append(value_error_tmpl({'warning': valid_or_warning}));
+            }
+            return false;
+        }
+    }
+    return true;
+}

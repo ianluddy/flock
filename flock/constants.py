@@ -71,7 +71,7 @@ TEST_DATA = {
     'Person': [
         {
             "id": -1,
-            "mail": "ian@tryflock.com",
+            "email": "ian@tryflock.com",
             "name": "Ian Luddy",
             "invite": True,
             "active": True,
@@ -81,7 +81,7 @@ TEST_DATA = {
         },
         {
             "id": -2,
-            "mail": "dani@tryflock.com",
+            "email": "dani@tryflock.com",
             "name": "Dani Brown",
             "invite": True,
             "active": True,
@@ -94,7 +94,7 @@ TEST_DATA = {
         },
         {
             "id": -3,
-            "mail": "kacper@tryflock.com",
+            "email": "kacper@tryflock.com",
             "name": "Kacper Oppegård",
             "invite": True,
             "active": True,
@@ -107,7 +107,7 @@ TEST_DATA = {
         },
         {
             "id": -4,
-            "mail": "牛禹凡@tryflock.com",
+            "email": "牛禹凡@tryflock.com",
             "name": "牛禹凡",
             "invite": True,
             "active": False,
@@ -120,7 +120,7 @@ TEST_DATA = {
         },
         {
             "id": -5,
-            "mail": "jürgen@tryflock.com",
+            "email": "jürgen@tryflock.com",
             "name": "Jürgen Wexler",
             "invite": True,
             "active": False,
@@ -132,7 +132,7 @@ TEST_DATA = {
         },
         {
             "id": -6,
-            "mail": "erskine@tryflock.com",
+            "email": "erskine@tryflock.com",
             "name": "Erskine Abrams",
             "invite": True,
             "active": False,
@@ -144,7 +144,7 @@ TEST_DATA = {
         },
         {
             "id": -7,
-            "mail": "joe@tryflock.com",
+            "email": "joe@tryflock.com",
             "name": "Joe Bloggs",
             "invite": True,
             "active": True,
@@ -156,7 +156,7 @@ TEST_DATA = {
         },
         {
             "id": -8,
-            "mail": "jim@tryflock.com",
+            "email": "jim@tryflock.com",
             "name": "Jim Bloggs",
             "invite": True,
             "active": True,
@@ -168,7 +168,7 @@ TEST_DATA = {
         },
         {
             "id": -9,
-            "mail": "jaylin@tryflock.com",
+            "email": "jaylin@tryflock.com",
             "name": "Jaylin Adcock",
             "invite": True,
             "active": True,
@@ -180,7 +180,7 @@ TEST_DATA = {
         },
         {
             "id": -10,
-            "mail": "gyles@tryflock.com",
+            "email": "gyles@tryflock.com",
             "name": "Gyles Traviss",
             "invite": True,
             "active": True,
@@ -192,7 +192,7 @@ TEST_DATA = {
         },
         {
             "id": -11,
-            "mail": "dan@tryflock.com",
+            "email": "dan@tryflock.com",
             "name": "Dan White",
             "invite": True,
             "active": True,
@@ -204,7 +204,7 @@ TEST_DATA = {
         },
         {
             "id": -12,
-            "mail": "gary@tryflock.com",
+            "email": "gary@tryflock.com",
             "name": "Gary Black",
             "invite": True,
             "active": True,
@@ -216,7 +216,7 @@ TEST_DATA = {
         },
         {
             "id": -13,
-            "mail": "mary@tryflock.com",
+            "email": "mary@tryflock.com",
             "name": "Mary O' Sullivan",
             "invite": True,
             "active": True,
@@ -239,7 +239,7 @@ TEST_DATA = {
             'id': -1,
             'name': 'Guinness Enterprise Centre',
             'address': 'Taylors Lane, Dublin 8',
-            'mail': 'info@gec.ie',
+            'email': 'info@gec.ie',
             'phone': '01-7997991',
             'company': -1
         },
@@ -247,7 +247,7 @@ TEST_DATA = {
             'id': -2,
             'name': 'Starbucks Westmoreland St.',
             'address': '12 Westmoreland St, Dublin 8',
-            'mail': 'info@starbucks.ie',
+            'email': 'info@starbucks.ie',
             'phone': '01-7447865',
             'company': -1
         },
@@ -255,7 +255,7 @@ TEST_DATA = {
             'id': -3,
             'name': 'Cafe Noto',
             'address': '2 Thomas St, Dublin 8',
-            'mail': 'info@noto.ie',
+            'email': 'info@noto.ie',
             'phone': '01-7732321',
             'company': -1
         },
@@ -263,7 +263,7 @@ TEST_DATA = {
             'id': -4,
             'name': 'St Kevins Library',
             'address': '2 Kevin Street, Dublin 8',
-            'mail': 'info@kevinstlibrary.ie',
+            'email': 'info@kevinstlibrary.ie',
             'phone': '01-4141412',
             'company': -1
         },
@@ -271,7 +271,7 @@ TEST_DATA = {
             'id': -5,
             'name': 'Galway Office',
             'address': '12 William St, Galway',
-            'mail': 'galway@tryflock.com',
+            'email': 'galway@tryflock.com',
             'phone': '091-755795',
             'company': -1
         },
@@ -279,7 +279,7 @@ TEST_DATA = {
             'id': -6,
             'name': 'Room 101',
             'address': 'Head Office, Dublin 8',
-            'mail': 'info@tryflock.com',
+            'email': 'info@tryflock.com',
             'phone': '01-5551234',
             'company': -1
         },
@@ -287,7 +287,7 @@ TEST_DATA = {
             'id': -7,
             'name': 'Room 102',
             'address': 'Head Office, Dublin 8',
-            'mail': 'info@tryflock.com',
+            'email': 'info@tryflock.com',
             'phone': '01-5551234',
             'company': -1
         },
@@ -295,7 +295,7 @@ TEST_DATA = {
             'id': -8,
             'name': 'Room 103',
             'address': 'Head Office, Dublin 8',
-            'mail': 'info@tryflock.com',
+            'email': 'info@tryflock.com',
             'phone': '01-5551234',
             'company': -1
         },
@@ -303,7 +303,7 @@ TEST_DATA = {
             'id': -9,
             'name': 'Room 104',
             'address': 'Head Office, Dublin 8',
-            'mail': 'info@tryflock.com',
+            'email': 'info@tryflock.com',
             'phone': '01-5551234',
             'company': -1
         },
@@ -311,7 +311,7 @@ TEST_DATA = {
             'id': -10,
             'name': 'Cork Office',
             'address': '12 Bridge Street, Cork',
-            'mail': 'cork@tryflock.com',
+            'email': 'cork@tryflock.com',
             'phone': '07-5551234',
             'company': -1
         },

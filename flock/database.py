@@ -26,7 +26,7 @@ class Database():
 
     def add_indexes(self):
         pass
-        # self.db.person.createIndex({"company": 1, "mail": 1})
+        # self.db.person.createIndex({"company": 1, "email": 1})
 
     def add_defaults(self):
         for collection_name, data in DEFAULT_DATA.iteritems():
@@ -105,13 +105,13 @@ class Database():
 
     #### User Account ####
 
-    def register_user(self, name, mail, password, company):
+    def register_user(self, name, email, password, company):
         validate_password(password)
 
         new_company = Company(name=company)
 
         try:
-            owner = Person(name=name, mail=mail.lower(), password=generate_password_hash(password), company=new_company)
+            owner = Person(name=name, email=email.lower(), password=generate_password_hash(password), company=new_company)
             owner.save()
         except NotUniqueError:
             abort(400, 'Email address already in use :(')
@@ -140,27 +140,27 @@ class Database():
         except DoesNotExist:
             abort(400, "Invitation expired. A new invitation will need to be sent. Please contact your Organisation's administrator.")
 
-    def update_password(self, mail, password):
+    def update_password(self, email, password):
         validate_password(password)
-        Person.objects(mail=mail).update_one(
+        Person.objects(email=email).update_one(
             password=generate_password_hash(password)
         )
 
-    def generate_token(self, mail):
+    def generate_token(self, email):
         token = account_token()
-        Person.objects(mail=mail).update_one(token=token, invite=True)
+        Person.objects(email=email).update_one(token=token, invite=True)
         return token
 
-    def authenticate_user(self, mail, password):
+    def authenticate_user(self, email, password):
         try:
-            user = self.person_get(mail=mail)
+            user = self.person_get(email=email)
             if check_password_hash(user.password, password):
-                return user.id, user.name, user.company.id, user.company.name, user.mail
+                return user.id, user.name, user.company.id, user.company.name, user.email
             abort(400, 'Password is incorrect :(')
         except DoesNotExist:
             abort(400, 'Email address not registered :(')
 
-    def reset_user(self, mail):
+    def reset_user(self, email):
         new_password = random_password()
         try:
             user = self.person_get(mail=mail)
@@ -182,13 +182,13 @@ class Database():
                 role=role,
                 role_name=role.name,
                 role_theme=role.theme,
-                mail=person['mail'],
+                email=person['email'],
                 name=person['name'],
                 phone=person['phone'],
             )
         else:
             Person.objects(id=int(person['id'])).update_one(
-                mail=person['mail'],
+                email=person['email'],
                 name=person['name'],
                 phone=person['phone'],
             )
@@ -200,18 +200,18 @@ class Database():
         new_person['role_name'] = role.name
         new_person['role_theme'] = role.theme
 
-        # Mail can either be a unique email address or can not exist
-        if not new_person['mail']:
-            del new_person['mail']
+        # email can either be a unique email address or can not exist
+        if not new_person['email']:
+            del new_person['email']
         else:
-            new_person['mail'] = new_person['mail'].lower()
+            new_person['email'] = new_person['email'].lower()
 
         try:
             return Person(**new_person).save()
         except NotUniqueError:
             abort(400, 'That email address is already in use.')
 
-    def person_get(self, company_id=None, role_id=None, user_id=None, mail=None, search=None, sort_by=None,
+    def person_get(self, company_id=None, role_id=None, user_id=None, email=None, search=None, sort_by=None,
                    sort_dir=None, token=None, limit=None, offset=None):
 
         query = {}
@@ -223,8 +223,8 @@ class Database():
             query['_id'] = int(user_id)
             return Person.objects.get(__raw__=query)
 
-        if mail:
-            query['mail'] = mail.lower()
+        if email:
+            query['email'] = email.lower()
             return Person.objects.get(__raw__=query)
 
         if token:
@@ -243,7 +243,7 @@ class Database():
             # TODO - search status. ie. active, invitation pending etc
             query['$or'] = [
                 {'name': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
-                {'mail': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
+                {'email': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
                 {'role_name': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}}
             ]
 
@@ -262,14 +262,21 @@ class Database():
 
     #### Event ####
 
-    def event_add(self, new_event):
+    def event_add(self, event):
         # TODO - deal with recurring events
-        return Event(**new_event).save()
+        return Event(**event).save()
 
-    def event_get(self, company_id=None, start=None, end=None, show_expired=True, place_id=None, limit=None,
+    def event_update(self, event):
+        Event.objects(id=event['id']).update_one(**event)
+
+    def event_get(self, company_id=None, event_id=None, start=None, end=None, hide_expired=False, place_id=None, limit=None,
             offset=None, sort_by=None, sort_dir='asc', user_id=None):
 
         query = {}
+
+        if event_id:
+            query['_id'] = int(event_id)
+            return Event.objects(__raw__=query)
 
         if company_id:
             query['company'] = int(company_id)
@@ -277,7 +284,7 @@ class Database():
         if place_id:
             query['place'] = int(place_id)
 
-        if show_expired is not True:
+        if hide_expired:
             query['start'] = {'$gte': datetime.now()}
 
         if start:
@@ -323,7 +330,7 @@ class Database():
             query['$or'] = [
                 {'name': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
                 {'address': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
-                {'mail': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
+                {'email': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}},
                 {'phone': {'$options': 'i', '$regex': u'.*{}.*'.format(search)}}
             ]
 
@@ -353,7 +360,7 @@ class Database():
         Place.objects(id=int(place['id'])).update_one(
             name=place['name'],
             phone=place['phone'],
-            mail=place['mail'],
+            email=place['email'],
             address=place['address']
         )
 

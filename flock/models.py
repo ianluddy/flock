@@ -19,7 +19,7 @@ class Place(Document, Base):
     id = SequenceField(primary_key=True)
     name = StringField(nullable=False)
     address = StringField(nullable=False)
-    mail = StringField()
+    email = StringField()
     phone = StringField()
     company = ReferenceField('Company', nullable=False)
 
@@ -54,7 +54,7 @@ class Person(Document, Base):
         ]
     }
     id = SequenceField(primary_key=True)
-    mail = StringField(unique=True, nullable=False)
+    email = StringField(unique=True, nullable=False)
     phone = StringField(nullable=True)
     name = StringField()
     invite = BooleanField(default=True)
@@ -98,7 +98,7 @@ class Event(Document, Base):
             'title': self.title,
             'description': self.description,
             'people': sorted(
-                [{'initials': person.initials, 'name': person.name, 'theme': person.role_theme} for person in self.people],
+                [{'initials': person.initials, 'name': person.name, 'theme': person.role_theme, 'id': person.id} for person in self.people],
                 key=lambda x: x['theme']
             ),
             'start': str(self.start),

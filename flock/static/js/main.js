@@ -1,6 +1,11 @@
 var user_id, page_main, loader, permissions, account;
 var people, places, things;
 
+// Templates
+var people_tmpl, dashboard_tmpl, account_tmpl, planner_tmpl, events_tmpl, things_tmpl, places_tmpl, settings_tmpl;
+var notifications_tmpl, no_data_tmpl, no_data_table_tmpl, places_table_body_tmpl, people_type_table_tmpl;
+var people_table_body_tmpl, event_tmpl, upcoming_events_tmpl, single_select_tmpl, multi_select_tmpl, value_error_tmpl;
+
 $(document).ready(function () {
     page_main = $("#main");
     loader = $("#loader");
@@ -39,18 +44,17 @@ function compile_templates(){
     things_tmpl = Handlebars.compile($("#things_tmpl").html());
     places_tmpl = Handlebars.compile($("#places_tmpl").html());
     settings_tmpl = Handlebars.compile($("#settings_tmpl").html());
-    notifications_tmpl = Handlebars.compile($("#notifications_tmpl").html());
     no_data_tmpl = Handlebars.compile($("#no_data_tmpl").html());
     no_data_table_tmpl = Handlebars.compile($("#no_data_table_tmpl").html());
     places_table_body_tmpl = Handlebars.compile($("#places_table_body_tmpl").html());
     people_type_table_tmpl = Handlebars.compile($("#people_type_table_tmpl").html());
     people_table_body_tmpl = Handlebars.compile($("#people_table_body_tmpl").html());
     event_tmpl = Handlebars.compile($("#event_tmpl").html());
-    event_tip_tmpl = Handlebars.compile($("#event_tip_tmpl").html());
     notifications_tmpl = Handlebars.compile($("#notifications_tmpl").html());
     upcoming_events_tmpl = Handlebars.compile($("#upcoming_events_tmpl").html());
     single_select_tmpl = Handlebars.compile($("#single_select_tmpl").html());
     multi_select_tmpl = Handlebars.compile($("#multi_select_tmpl").html());
+    value_error_tmpl = Handlebars.compile($("#value_error_tmpl").html());
 
     // Partial Templates
     Handlebars.registerPartial("person_type_part", $("#people_type_table_row_tmpl").html());
@@ -166,39 +170,41 @@ function load_account(){
         'success': function(input){
             $('#account_name').val(input['name']);
             $('#account_phone').val(input['phone']);
-            $('#account_email').val(input['mail']);
+            $('#account_email').val(input['email']);
         }
     });
 
+    var update_account_validation = [{'elem': '#account_name'}];
     $('#update_account_btn').on('click', function(e){
         e.preventDefault();
-        ajax_call({
-            'url': '/user',
-            'type': 'post',
-            'data': {
-                'name': $('#account_name').val(),
-                'phone': $('#account_phone').val()
-            },
-            "success": function(){
-                $("#account a span").text($('#account_name').val());
-            }
-        });
+        if( valid8(update_account_validation) ){
+            ajax_call({
+                'url': '/user',
+                'type': 'post',
+                'data': {
+                    'name': $('#account_name').val(),
+                    'phone': $('#account_phone').val()
+                },
+                "success": function(){
+                    $("#account a span").text($('#account_name').val());
+                }
+            });
+        };
     });
 
+    var change_password_validation = [{'elem': '#password_current'}, {'elem': '#password_new'}];
     $('#change_password_btn').on('click', function(e){
         e.preventDefault();
-        ajax_call({
-            'url': '/password',
-            'type': 'post',
-            'data': {
-                'current': $('#password_current').val(),
-                'new': $('#password_new').val()
-            },
-            "success": function(){
-                $('#password_current').val('');
-                $('#password_new').val('');
-            }
-        });
+        if( valid8(change_password_validation) ){
+            ajax_call({
+                'url': '/password',
+                'type': 'post',
+                'data': {
+                    'current': $('#password_current').val(),
+                    'new': $('#password_new').val()
+                }
+            });
+        };
     });
 }
 function load_dashboard(){
@@ -209,7 +215,7 @@ function load_dashboard(){
         'data': {
             'limit': 10,
             'sort_by': 'start',
-            'show_expired': false,
+            'hide_expired': true,
             'user_id': user_id
         },
         'notify': false,
@@ -234,9 +240,16 @@ function load_dashboard(){
 }
 
 function load_planner(){
-    var datepicker_start, datepicker_end, clockpicker_start, clockpicker_end, calendar;
+    var calendar;
+    var place_id = null;
+    var people = [];
 
     $(page_main).html(planner_tmpl());
+    var datepicker_start = $('#add_event_datepicker_start .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
+    var clockpicker_start = $('#add_event_clockpicker_start').clockpicker();
+    var datepicker_end = $('#add_event_datepicker_end .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
+    var clockpicker_end = $('#add_event_clockpicker_end').clockpicker({placement: 'top'});
+
     function load_planner() {
         calendar = $('#calendar_holder').fullCalendar({
             header: {
@@ -245,8 +258,6 @@ function load_planner(){
                 right: 'agendaDay,agendaWeek,month',
             },
             defaultView: "agendaDay",
-            minTime: "06:00:00",
-            maxTime: "23:00:00",
             height: $('#page-wrapper').height(),
             selectable: true,
             timeFormat: 'H:mm',
@@ -263,8 +274,38 @@ function load_planner(){
             eventMouseover: function (event, element) {
                 $(element.currentTarget).addClass('active');
                 $('.fc-event').addClass('faded');
+            },
+            eventClick: function (event, element) {
+                var details = $(element.currentTarget).find('.event_details');
+                var people = [];
+                var start_stamp = moment.utc(parseInt($(details).attr('event_start')));
+                var end_stamp = moment.utc(parseInt($(details).attr('event_end')));
+                $(details).find('.event_details_people span').each(function(){
+                    people.push($(this).attr('person_id'))
+                });
+                load_modal_components(function(){
+                    $('#add_event_modal .modal-title').text('Edit Event');
+                    $('#add_event_name').val($(details).attr('event_title'));
+                    $('#add_event_description').val($(details).find('.event_details_description span').text());
+                    $('#add_event_datepicker_start input').attr('value', start_stamp.format("DD/MM/YY"));
+                    $('#add_event_datepicker_end input').attr('value', end_stamp.format("DD/MM/YY"));
+                    $('#add_event_clockpicker_start input').attr('value', start_stamp.format("HH:mm"));
+                    $('#add_event_clockpicker_end input').attr('value', end_stamp.format("HH:mm"));
+                    $('#add_event_modal').modal('show');
+                });
             }
         });
+    }
+
+    function reset_modal(){
+        var soon = moment().add(1, 'hour').set('minute', 0);
+        $('#add_event_form').attr('event_id', '');
+        $('#add_event_name').val('');
+        $('#add_event_description').val('');
+        $('#add_event_datepicker_start input').attr('value', soon.format('DD/MM/YY'));
+        $('#add_event_datepicker_end input').attr('value', soon.format('DD/MM/YY'));
+        $('#add_event_clockpicker_start input').attr('value', soon.format("HH:mm"));
+        $('#add_event_clockpicker_end input').attr('value', soon.add('hour', 1).format("HH:mm"));
     }
 
     function reload_planner(){
@@ -272,74 +313,106 @@ function load_planner(){
         calendar.fullCalendar('refetchEvents');
     }
 
-    function load_modal_components(){
-        ajax_call({
-            'url': '/places',
-            'type': 'get',
-            'notify': false,
-            'success': function(input){
-                $('#add_event_placepicker_wrapper').html(single_select_tmpl({'options': input.data, 'id': 'add_event_placepicker'}));
-                $("#add_event_placepicker").select2({ placeholder: "Select a Place", allowClear: true });
-            }
+    function load_modal_components(callback){
+        $('#add_event_modal .modal-title').text('Add Event');
+        $.when(
+            ajax_call({
+                'url': '/places',
+                'type': 'get',
+                'notify': false,
+                'success': function(input){
+                    place_id = null;
+                    $('#add_event_placepicker_wrapper').html(single_select_tmpl({
+                        'options': input.data,
+                        'id': 'add_event_placepicker',
+                        'placeholder': ' ',
+                        'tabindex': '2'
+                    }));
+                    $("#add_event_placepicker").chosen();
+                    $("#add_event_placepicker").on('change', function(evt, params) { place_id = params.selected; });
+                }
+            }),
+            ajax_call({
+                'url': '/people',
+                'type': 'get',
+                'notify': false,
+                'success': function(input){
+                    people = [];
+                    $('#add_event_peoplepicker_wrapper').html(multi_select_tmpl({
+                        'options': input.data,
+                        'id': 'add_event_peoplepicker',
+                        'placeholder': ' ',
+                        'tabindex': '3'
+                    }));
+                    $("#add_event_peoplepicker").chosen();
+                    $("#add_event_peoplepicker").on('change', function(evt, params) {
+                        if( params.selected != undefined )
+                            people.push(params.selected);
+                        if( params.deselected != undefined )
+                            people.splice(people.indexOf(params.deselcted), 1);
+                    });
+                    $('#add_event_name').focus();
+                }
+            })
+        ).done(function(){
+            if( callback !== undefined)
+                callback();
         });
-        ajax_call({
-            'url': '/people',
-            'type': 'get',
-            'notify': false,
-            'success': function(input){
-                $('#add_event_peoplepicker_wrapper').html(multi_select_tmpl({'options': input.data, 'id': 'add_event_peoplepicker'}));
-                $("#add_event_peoplepicker").select2({ placeholder: "Select some People" });
-            }
-        });
-        datepicker_start = $('#add_event_datepicker_start .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
-        clockpicker_start = $('#add_event_clockpicker_start').clockpicker();
-        datepicker_end = $('#add_event_datepicker_end .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
-        clockpicker_end = $('#add_event_clockpicker_end').clockpicker({placement: 'top'});
     }
 
+    var save_event_validation = [
+        {'elem': '#add_event_name'},
+        {'elem': '#add_event_placepicker_chosen', 'eval': function(element){
+            if( $(element).find('.chosen-single span').text().replace(' ','').length > 0 ){
+                return true;
+            }
+            return 'Required';
+        }},
+        {'elem': '#add_event_datepicker_start input'},
+        {'elem': '#add_event_datepicker_end input'},
+        {'elem': '#add_event_clockpicker_start input'},
+        {'elem': '#add_event_clockpicker_end input'}
+    ];
     function save_event(e){
-        // TODO - validation
         e.preventDefault();
-        var event = {};
-        var place_id = $('#add_event_placepicker').select2('data')[0]['id'];
-        var people = [];
-        var people_data = $('#add_event_peoplepicker').select2('data');
-        for( var i in people_data ){
-            people.push(people_data[i]['id']);
-        }
-        event['id'] = ''; // TODO
-        event['title'] = $('#add_event_name').val();
-        event['place'] = place_id;
-        event['people'] = JSON.stringify(people);
-        event['start_date'] = datepicker_start.datepicker('getDate');
-        event['end_date'] = datepicker_end.datepicker('getDate');
-        event['start_time'] = $('#add_event_clockpicker_start input').val();
-        event['end_time'] = $('#add_event_clockpicker_end input').val();
 
-        if( event['id'].length > 0 ){
-            ajax_call({
-                'url': '/events',
-                'type': 'put',
-                'data': event,
-                'success': reload_planner
-            });
-        }else{
-            ajax_call({
-                'url': '/events',
-                'type': 'post',
-                'data': event,
-                'success': reload_planner
-            });
+        if( valid8(save_event_validation) ){
+            var event = {};
+            var event_id = $('#add_event_form').attr('event_id');
+            event['title'] = $('#add_event_name').val();
+            event['description'] = $('#add_event_description').val();
+            event['place'] = place_id;
+            event['people'] = JSON.stringify(people);
+            event['start'] = datepicker_start.datepicker('getDate').toString().substring(0, 16) + $('#add_event_clockpicker_start input').val();
+            event['end'] = datepicker_end.datepicker('getDate').toString().substring(0, 16) + $('#add_event_clockpicker_end input').val();
+            if( event_id.length > 0 ){
+                event['id'] = event_id;
+                ajax_call({
+                    'url': '/events',
+                    'type': 'put',
+                    'data': event,
+                    'success': reload_planner
+                });
+            }else{
+                ajax_call({
+                    'url': '/events',
+                    'type': 'post',
+                    'data': event,
+                    'success': reload_planner
+                });
+            }
         }
     }
 
     function add_handlers(){
         $("#add_event_btn").on("click", load_modal_components);
         $("#modal_add_event").on("click", save_event);
+        $("#add_event_btn").on("click", reset_modal);
     }
 
     load_planner();
     add_handlers();
+    reset_modal();
 }
 
 function load_people(){
@@ -373,7 +446,7 @@ function load_people(){
     }
 
     function next_page(){
-        if( (page + 1) * limit <= count ){
+        if( (page + 1) * limit < count ){
             page = page + 1;
             reload_people();
         }
@@ -432,42 +505,47 @@ function load_people(){
             $('#add_person_phone').val($.trim(person_phone));
     }
 
+    var add_person_validation = [
+        {'elem': '#add_person_name'},
+        {'elem': '#add_person_email', 'eval': email_evaluator}
+    ];
     function add_person(e){
         e.preventDefault();
-        var person = {
-            'id': $('#add_person_form').attr('person_id'),
-            'type': $('#role_dropdown_value').attr('role_id'),
-            'name': $('#add_person_name').val(),
-            'mail': $('#add_person_email').val()
-        };
+        if( valid8(add_person_validation) ){
+            var person = {
+                'role': $('#role_dropdown_value').attr('role_id'),
+                'name': $('#add_person_name').val(),
+                'email': $('#add_person_email').val()
+            };
+            var person_id = $('#add_person_form').attr('person_id');
+            var phone = $('#add_person_phone').val();
+            var invite = $('#add_person_invite').is(":checked");
 
-        var phone = $('#add_person_phone').val();
-        var invite = $('#add_person_invite').is(":checked");
+            if( invite == true )
+                person['invite'] = true;
 
-        if( invite == true )
-            person['invite'] = true;
+            if( phone.length > 0)
+                person['phone'] = phone;
 
-        if( phone.length > 0)
-            person['phone'] = phone;
+            if ( person['name'].length > 0 && person['email'].length > 0 )
 
-        if ( person['name'].length > 0 && person['mail'].length > 0 )
-
-            if( person['id'].length > 0 ){
-                ajax_call({
-                    'url': '/people',
-                    'type': 'put',
-                    'data': person,
-                    'success': reload_people
-                });
-            }else{
-                ajax_call({
-                    'url': '/people',
-                    'type': 'post',
-                    'data': person,
-                    'success': reload_people
-                });
-            }
-
+                if( person_id.length > 0 ){
+                    person['id'] = person_id;
+                    ajax_call({
+                        'url': '/people',
+                        'type': 'put',
+                        'data': person,
+                        'success': reload_people
+                    });
+                }else{
+                    ajax_call({
+                        'url': '/people',
+                        'type': 'post',
+                        'data': person,
+                        'success': reload_people
+                    });
+                }
+        }
     }
 
     function delete_person(){
@@ -481,7 +559,7 @@ function load_people(){
     }
 
     function invite_person(){
-        var to_invite = {'mail': $(this).attr("mail")};
+        var to_invite = {'email': $(this).attr("email")};
         ajax_call({'url': '/people/invite', 'type': 'post', 'data': to_invite, 'success': reload_people});
     }
     
@@ -557,7 +635,7 @@ function load_places(){
     }
 
     function next_page(){
-        if( (page + 1) * limit <= count ){
+        if( (page + 1) * limit < count ){
             page = page + 1;
             reload_places();
         }
@@ -599,32 +677,38 @@ function load_places(){
         $('#add_places_modal').modal('hide');
     }
 
+    var add_place_validation = [
+        {'elem': '#add_place_name'},
+        {'elem': '#add_place_address'}
+    ];
     function add_place(e){
         e.preventDefault();
-        var place = {
-            'name': $('#add_place_name').val(),
-            'email': $('#add_place_email').val(),
-            'phone': $('#add_place_phone').val(),
-            'address': $('#add_place_address').val(),
-        };
-        // TODO - validate form
-        if ( place['name'].length > 0 && place['address'].length > 0 ) {
-            var place_id = $("#add_place_form").attr("place_id").toString();
-            if( place_id.length > 0){
-                place['id'] = place_id;
-                ajax_call({
-                    'url': '/places',
-                    'type': 'put',
-                    'data': place,
-                    'success': reload_places
-                });
-            }else{
-                ajax_call({
-                    'url': '/places',
-                    'type': 'post',
-                    'data': place,
-                    'success': reload_places
-                });
+
+        if( valid8(add_place_validation) ){
+            var place = {
+                'name': $('#add_place_name').val(),
+                'email': $('#add_place_email').val(),
+                'phone': $('#add_place_phone').val(),
+                'address': $('#add_place_address').val(),
+            };
+            if ( place['name'].length > 0 && place['address'].length > 0 ) {
+                var place_id = $("#add_place_form").attr("place_id").toString();
+                if( place_id.length > 0){
+                    place['id'] = place_id;
+                    ajax_call({
+                        'url': '/places',
+                        'type': 'put',
+                        'data': place,
+                        'success': reload_places
+                    });
+                }else{
+                    ajax_call({
+                        'url': '/places',
+                        'type': 'post',
+                        'data': place,
+                        'success': reload_places
+                    });
+                }
             }
         }
     }
@@ -729,49 +813,52 @@ function load_settings_people(){
             $('#add_role_form .btn[value="' + permissions[i] + '"]').click();
         }
     }
-
+    var save_role_validation = [
+        {'elem': '#add_role_name'}
+    ];
     function save_role(e){
         e.preventDefault();
 
-        var role_id = $('#add_role_form').attr('role_id');
+        if( valid8(save_role_validation)){
+            var role_id = $('#add_role_form').attr('role_id');
 
-        var data = {
-            'theme': $('#role_colour .color-choice.selected').attr('value'),
-            'name': $('#add_role_name').val(),
-            'permissions': []
-        };
+            var data = {
+                'theme': $('#role_colour .color-choice.selected').attr('value'),
+                'name': $('#add_role_name').val(),
+                'permissions': []
+            };
 
-        if( data.name.length > 0 ) {
+            if( data.name.length > 0 ) {
 
-            $('#add_role_form .btn-choice .btn.selected').each(function () {
-                var dom_permissions = $(this).attr('value');
-                if (dom_permissions != undefined) {
-                    var split_permissions = dom_permissions.split(' ');
-                    for (var i in split_permissions) {
-                        data.permissions.push(split_permissions[i]);
+                $('#add_role_form .btn-choice .btn.selected').each(function () {
+                    var dom_permissions = $(this).attr('value');
+                    if (dom_permissions != undefined) {
+                        var split_permissions = dom_permissions.split(' ');
+                        for (var i in split_permissions) {
+                            data.permissions.push(split_permissions[i]);
+                        }
                     }
+                });
+
+                data.permissions = JSON.stringify(data.permissions);
+
+                if ( role_id.length > 0 ){
+                    data.id = role_id;
+                    ajax_call({
+                        'url': 'roles',
+                        'data': data,
+                        'type': 'PUT',
+                        'success': load_roles
+                    });
+                }else{
+                    ajax_call({
+                        'url': 'roles',
+                        'data': data,
+                        'type': 'POST',
+                        'success': load_roles
+                    });
                 }
-            });
-
-            data.permissions = JSON.stringify(data.permissions);
-
-            if ( role_id.length > 0 ){
-                data.id = role_id;
-                ajax_call({
-                    'url': 'roles',
-                    'data': data,
-                    'type': 'PUT',
-                    'success': load_roles
-                });
-            }else{
-                ajax_call({
-                    'url': 'roles',
-                    'data': data,
-                    'type': 'POST',
-                    'success': load_roles
-                });
             }
-
         }
     }
 

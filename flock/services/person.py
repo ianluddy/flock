@@ -4,7 +4,7 @@ from flock.services import mail
 from flock.services.notification import notify
 
 def invite(email, sender_id, company_id):
-    recipient = db.person_get(company_id=company_id, mail=email)
+    recipient = db.person_get(company_id=company_id, email=email)
 
     if not email or not recipient:
         abort(400, 'No email address registered for this Person, please add one to send an invitation')
@@ -18,13 +18,13 @@ def invite(email, sender_id, company_id):
     )
 
 def add(new_person, user_id, company_id):
-    if new_person['invite'] and not new_person.get('mail'):
+    if new_person['invite'] and not new_person.get('email'):
         abort(400, 'Please specify an email address to send the invitation to, or uncheck the invitation box.')
 
     db.person_add(new_person)
 
     if new_person['invite']:
-        invite(new_person['mail'], user_id, company_id)
+        invite(new_person['email'], user_id, company_id)
 
     notify(u'{} added a new Person - <b>%s</b>' % new_person['name'], action='add', target='person')
 
@@ -37,7 +37,7 @@ def delete(user_id):
     db.person_delete(user_id)
     notify(u'{} deleted a Person - <b>%s</b>' % user_name, action='delete', target='person')
 
-def get(company_id=None, role_id=None, mail=None, search=None, sort_by=None, sort_dir=None, limit=None,
+def get(company_id=None, role_id=None, email=None, search=None, sort_by=None, sort_dir=None, limit=None,
         offset=None):
     return db.person_get(company_id=company_id, role_id=role_id, search=search, sort_by=sort_by,
-                              sort_dir=sort_dir, limit=limit, offset=offset, mail=mail)
+                              sort_dir=sort_dir, limit=limit, offset=offset, email=email)
