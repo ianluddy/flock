@@ -278,6 +278,9 @@ class Database():
             place=self.place_get(place_id=event['place']),
         )
 
+    def event_delete(self, event_id):
+        Event.objects(id=event_id).delete()
+
     def event_get(self, company_id=None, event_id=None, start=None, end=None, hide_expired=False, place_id=None, limit=None,
             offset=None, sort_by=None, sort_dir='asc', user_id=None):
 

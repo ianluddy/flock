@@ -285,7 +285,7 @@ def events():
     ))
 
 @app.route('/events', methods=['POST'])
-@auth(['edit_places'])
+@auth(['edit_events'])
 @parse_args(string_args=['title', 'description', 'start', 'end'], int_args=['place'], json_args=['people'])
 def events_post(event):
     event.update({
@@ -299,7 +299,7 @@ def events_post(event):
     return u'{} Event Added'.format(event['title'])
 
 @app.route('/events', methods=['PUT'])
-@auth(['edit_places'])
+@auth(['edit_events'])
 @parse_args(string_args=['title', 'description', 'start', 'end'], int_args=['id', 'place'], json_args=['people'])
 def events_put(event):
     event.update({
@@ -311,6 +311,13 @@ def events_put(event):
     })
     event_service.update(event)
     return u'{} Event Updated'.format(event['title'])
+
+@app.route('/events', methods=['DELETE'])
+@auth(['edit_events'])
+@parse_args(int_args=['id'], string_args=['title'])
+def events_delete(event):
+    event_service.delete(event)
+    return u'{} Event Deleted'.format(event['title'])
 
 #### Roles ####
 

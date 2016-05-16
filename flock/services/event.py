@@ -27,6 +27,10 @@ def update(event):
     db.event_update(event)
     notify(u'{} updated an Event - <b>%s</b>' % event['title'], action='edit', target='event')
 
+def delete(event):
+    db.event_delete(event['id'])
+    notify(u'{} deleted an Event - <b>%s</b>' % event['title'], action='delete', target='event')
+
 def _validate_event(event):
     if event['start'] > event['end']:
         abort(400, 'Start time needs to be before end time')

@@ -287,6 +287,7 @@ function load_planner(){
                 load_modal_components(function(){
                     $('#add_event_modal .modal-title').text('Update Event');
                     $('#modal_add_event').text('Update');
+                    $('#modal_delete_event').show();
                     $('#add_event_form').attr('event_id', event['id']);
                     $('#add_event_name').val($(details).attr('event_title'));
                     $('#add_event_description').val($(details).find('.event_details_description span').text());
@@ -323,6 +324,7 @@ function load_planner(){
     function load_modal_components(callback){
         $('#add_event_modal .modal-title').text('Add Event');
         $('#modal_add_event').text('Add');
+        $('#modal_delete_event').hide();
         $.when(
             ajax_call({
                 'url': '/places',
@@ -410,6 +412,21 @@ function load_planner(){
         }
     }
 
+    function delete_event(e){
+        e.preventDefault();
+        var event = {};
+        event['title'] = $('#add_event_name').val();
+        event['id'] = $('#add_event_form').attr('event_id');
+        if( event['id'].length > 0 ){
+            ajax_call({
+                'url': '/events',
+                'type': 'delete',
+                'data': event,
+                'success': reload_planner
+            });
+        }
+    }
+
     function add_handlers(){
         ajax_call({
             'url': '/places',
@@ -428,6 +445,7 @@ function load_planner(){
                 }else{
                     $("#add_event_btn").on("click", load_modal_components);
                     $("#modal_add_event").on("click", save_event);
+                    $("#modal_delete_event").on("click", delete_event);
                     $("#add_event_btn").on("click", reset_modal);
                 }
             }
