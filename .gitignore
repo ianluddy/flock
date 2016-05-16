@@ -3,3 +3,5 @@
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
+.idea/encodings.xml
+flock/static/js/jquery.validate.min.js
