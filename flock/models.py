@@ -104,7 +104,10 @@ class Event(Document, Base):
             'start': str(self.start),
             'end': str(self.end),
             'owner': self.owner.name if self.owner else None,
-            'place': self.place.name if self.place else None
+            'place': {
+                'name': self.place.name if self.place else None,
+                'id': self.place.id if self.place else None,
+            }
         }
 
 class Company(Document, Base):

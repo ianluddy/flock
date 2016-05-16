@@ -764,7 +764,7 @@
 </script>
 
 <script id="value_error_tmpl" type="text/x-handlebars-template">
-    <div class='val_error animated fadeInLeft'>{{ warning }}<i class="fa fa-asterisk"></i></div>
+    <div class='val_error'><i class="fa fa-arrow-up"></i>{{ warning }}</div>
 </script>
 
 <script id="radio_button_tmpl" type="text/x-handlebars-template">
@@ -790,7 +790,9 @@
         {{/each}}
     </div>
     <div class="event_place">
-        {{place}}
+        {{#not_undefined place}}
+            {{ place.name }}
+        {{/not_undefined}}
     </div>
     <div class="event_details" event_place="{{place}}" event_id="{{id}}" event_title="{{title}}" event_start="{{start}}" event_end={{end}}>
         <div class="event_details_description">

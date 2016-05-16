@@ -267,7 +267,16 @@ class Database():
         return Event(**event).save()
 
     def event_update(self, event):
-        Event.objects(id=event['id']).update_one(**event)
+        # TODO - deal with recurring events
+        people = [self.person_get(user_id=user_id) for user_id in event['people']] if event['people'] else None
+        Event.objects(id=event['id']).update_one(
+            title=event['title'],
+            description=event['description'],
+            start=event['start'],
+            end=event['end'],
+            people=people,
+            place=self.place_get(place_id=event['place']),
+        )
 
     def event_get(self, company_id=None, event_id=None, start=None, end=None, hide_expired=False, place_id=None, limit=None,
             offset=None, sort_by=None, sort_dir='asc', user_id=None):
@@ -319,10 +328,10 @@ class Database():
 
         query = {}
 
-        if company_id:
+        if company_id is not None:
             query['company'] = company_id
 
-        if place_id:
+        if place_id is not None:
             query['_id'] = int(place_id)
             return Place.objects.get(__raw__=query)
 

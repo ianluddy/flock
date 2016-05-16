@@ -277,20 +277,25 @@ function load_planner(){
             },
             eventClick: function (event, element) {
                 var details = $(element.currentTarget).find('.event_details');
-                var people = [];
+                people = [];
                 var start_stamp = moment.utc(parseInt($(details).attr('event_start')));
                 var end_stamp = moment.utc(parseInt($(details).attr('event_end')));
                 $(details).find('.event_details_people span').each(function(){
                     people.push($(this).attr('person_id'))
                 });
+                place_id = parseInt(event.place.id);
                 load_modal_components(function(){
-                    $('#add_event_modal .modal-title').text('Edit Event');
+                    $('#add_event_modal .modal-title').text('Update Event');
+                    $('#modal_add_event').text('Update');
+                    $('#add_event_form').attr('event_id', event['id']);
                     $('#add_event_name').val($(details).attr('event_title'));
                     $('#add_event_description').val($(details).find('.event_details_description span').text());
                     $('#add_event_datepicker_start input').attr('value', start_stamp.format("DD/MM/YY"));
                     $('#add_event_datepicker_end input').attr('value', end_stamp.format("DD/MM/YY"));
                     $('#add_event_clockpicker_start input').attr('value', start_stamp.format("HH:mm"));
                     $('#add_event_clockpicker_end input').attr('value', end_stamp.format("HH:mm"));
+                    $('#add_event_placepicker_wrapper select').val(event.place.id).trigger('chosen:updated');
+                    $('#add_event_peoplepicker_wrapper select').val(people).trigger('chosen:updated');
                     $('#add_event_modal').modal('show');
                 });
             }
@@ -299,6 +304,8 @@ function load_planner(){
 
     function reset_modal(){
         var soon = moment().add(1, 'hour').set('minute', 0);
+        place_id = null;
+        people = [];
         $('#add_event_form').attr('event_id', '');
         $('#add_event_name').val('');
         $('#add_event_description').val('');
@@ -315,13 +322,13 @@ function load_planner(){
 
     function load_modal_components(callback){
         $('#add_event_modal .modal-title').text('Add Event');
+        $('#modal_add_event').text('Add');
         $.when(
             ajax_call({
                 'url': '/places',
                 'type': 'get',
                 'notify': false,
                 'success': function(input){
-                    place_id = null;
                     $('#add_event_placepicker_wrapper').html(single_select_tmpl({
                         'options': input.data,
                         'id': 'add_event_placepicker',
@@ -337,7 +344,6 @@ function load_planner(){
                 'type': 'get',
                 'notify': false,
                 'success': function(input){
-                    people = [];
                     $('#add_event_peoplepicker_wrapper').html(multi_select_tmpl({
                         'options': input.data,
                         'id': 'add_event_peoplepicker',
@@ -405,9 +411,27 @@ function load_planner(){
     }
 
     function add_handlers(){
-        $("#add_event_btn").on("click", load_modal_components);
-        $("#modal_add_event").on("click", save_event);
-        $("#add_event_btn").on("click", reset_modal);
+        ajax_call({
+            'url': '/places',
+            'type': 'get',
+            'notify': false,
+            'success': function(input){
+                if( input.data.length == 0 ){
+                    $("#add_event_btn").on("click", function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toastr.error('You need to add some Places first. Go to the Places tab.', 'Oh No!', {
+                            'timeOut': 3000,
+                            'progressBar': true
+                        });
+                    });
+                }else{
+                    $("#add_event_btn").on("click", load_modal_components);
+                    $("#modal_add_event").on("click", save_event);
+                    $("#add_event_btn").on("click", reset_modal);
+                }
+            }
+        });
     }
 
     load_planner();

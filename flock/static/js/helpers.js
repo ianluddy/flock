@@ -196,23 +196,17 @@ function email_evaluator(element){
 
 function valid8(validator){
     for( var i in validator ){
-        $('.val_error').remove();
         var target = validator[i];
         $(target.elem).off('change.validate').off('keyup.validate');
         var evaluator = target.eval === undefined ? default_evaluator : target.eval;
         var valid_or_warning = evaluator(target.elem);
         if( valid_or_warning != true ){
-            var remove_validation = function(e){
-                var code = e.keyCode || e.which;
-                if(code != 13) {
-                    $(this).siblings('.val_error').remove();
-                    $(target.elem).off('keyup.validate').off('change.validate');
-                }
-            };
-            $(target.elem).on('change.validate', remove_validation);
-            $(target.elem).on('keyup.validate', remove_validation);
             if( $(target.elem).siblings('.val_error').length == 0 ) {
                 $(target.elem).parent().append(value_error_tmpl({'warning': valid_or_warning}));
+                $(target.elem).parent().find('.val_error').fadeIn();
+                setTimeout(function(target){
+                    $(target.elem).parent().find('.val_error').fadeOut(function(){ $(this).remove(); });
+                }, 2000, target);
             }
             return false;
         }
