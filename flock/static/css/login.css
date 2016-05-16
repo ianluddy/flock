@@ -1,7 +1,8 @@
 .sk-spinner{
     display: none;
-    position: relative;
-    bottom: 230px;
+    position: absolute;
+    top: 175px;
+    left: 38%;
 }
 #wrong{
     display: none;
