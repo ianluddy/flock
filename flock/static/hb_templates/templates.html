@@ -6,7 +6,7 @@
                     Add an Event
                 </button>
             {{/perm}}
-            <div id="calendar_holder"></div>
+            <div id="calendar_holder" class=""></div>
         </div>
         <!--<div class="tabs-container">-->
             <!--<div class="tabs-left">-->
@@ -785,24 +785,27 @@
 </script>
 
 <script id="event_tmpl" type="text/x-handlebars-template">
-    <div class="event_people">
-        {{#each people}}
-            <span class="label label-{{theme}}">{{initials}}</span>
-        {{/each}}
-    </div>
-    <div class="event_place">
-        {{#not_undefined place}}
-            {{ place.name }}
-        {{/not_undefined}}
-    </div>
-    <div class="event_details" event_place="{{place.id}}" event_id="{{id}}" event_title="{{title}}" event_start="{{start}}" event_end={{end}}>
-        <div class="event_details_description">
-            <span>{{description}}</span>
-        </div>
-        <div class="event_details_people">
+    <div class="event_tip_wrapper">
+        <div class="event_people">
             {{#each people}}
-                <span person_id="{{id}}" class="event_details_person label label-{{theme}}">{{name}}</span>
+                <span class="label label-{{theme}}">{{initials}}</span>
             {{/each}}
+        </div>
+        <div class="event_place">
+            {{ place.name }}
+        </div>
+        <div class="event_details" event_place="{{place.id}}" event_id="{{id}}" event_title="{{title}}" event_start="{{start}}" event_end={{end}}>
+            <div class="event_details_description">
+                <span>{{description}}</span>
+            </div>
+            <div class="event_details_people">
+                {{#each people}}
+                    <span person_id="{{id}}" class="event_details_person label label-{{theme}}">{{name}}</span>
+                {{/each}}
+            </div>
+            <div class="event_details_place">
+                {{ place.name }}
+            </div>
         </div>
     </div>
 </script>

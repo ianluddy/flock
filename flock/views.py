@@ -110,7 +110,7 @@ def activate_form(token):
             info_msg="Your account has already been activated. You can log in now."
         )
 
-    return render_template('activate.html', token=token, name=person.name, email=person.mail)
+    return render_template('activate.html', token=token, name=person.name, email=person.email)
 
 @app.route('/activate', methods=['POST'])
 @parse_args(string_args=['token', 'name', 'password', 'email'])

@@ -240,22 +240,37 @@ function load_dashboard(){
 }
 
 function load_planner(){
-    var calendar;
-    var place_id = null;
+    var can_edit = permissions.indexOf('edit_events') != -1;
     var people = [];
+    var place_data, people_data, place_id, calendar;
 
-    $(page_main).html(planner_tmpl());
-    var datepicker_start = $('#add_event_datepicker_start .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
-    var clockpicker_start = $('#add_event_clockpicker_start').clockpicker();
-    var datepicker_end = $('#add_event_datepicker_end .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
-    var clockpicker_end = $('#add_event_clockpicker_end').clockpicker({placement: 'top'});
+    function load_data(){
+        ajax_call({
+            'url': '/places',
+            'type': 'get',
+            'notify': false,
+            'success': function(input){
+                place_data = input.data
+                add_handlers();
+            }
+        });
+        ajax_call({
+            'url': '/people',
+            'type': 'get',
+            'notify': false,
+            'success': function(input){
+                people_data = input.data;
+            }
+        });
+    }
 
     function load_planner() {
+        var event_height = null;
         calendar = $('#calendar_holder').fullCalendar({
             header: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'agendaDay,agendaWeek,month',
+                right: 'agendaDay,agendaWeek',
             },
             defaultView: "agendaDay",
             height: $('#page-wrapper').height(),
@@ -269,36 +284,42 @@ function load_planner(){
             },
             eventMouseout: function (event, element) {
                 $(element.currentTarget).removeClass('active');
+                $(element.currentTarget).css('height', event_height.toString() + 'px');
                 $('.fc-event').removeClass('faded');
             },
             eventMouseover: function (event, element) {
                 $(element.currentTarget).addClass('active');
+                event_height = $(element.currentTarget).height();
+                var event_body_height = $(element.currentTarget).find('.event_tip_wrapper').height() + 50;
+                $(element.currentTarget).css('height', event_body_height.toString() + 'px');
                 $('.fc-event').addClass('faded');
             },
             eventClick: function (event, element) {
-                var details = $(element.currentTarget).find('.event_details');
-                people = [];
-                var start_stamp = moment.utc(parseInt($(details).attr('event_start')));
-                var end_stamp = moment.utc(parseInt($(details).attr('event_end')));
-                $(details).find('.event_details_people span').each(function(){
-                    people.push($(this).attr('person_id'))
-                });
-                place_id = parseInt(event.place.id);
-                load_modal_components(function(){
-                    $('#add_event_modal .modal-title').text('Update Event');
-                    $('#modal_add_event').text('Update');
-                    $('#modal_delete_event').show();
-                    $('#add_event_form').attr('event_id', event['id']);
-                    $('#add_event_name').val($(details).attr('event_title'));
-                    $('#add_event_description').val($(details).find('.event_details_description span').text());
-                    $('#add_event_datepicker_start input').attr('value', start_stamp.format("DD/MM/YY"));
-                    $('#add_event_datepicker_end input').attr('value', end_stamp.format("DD/MM/YY"));
-                    $('#add_event_clockpicker_start input').attr('value', start_stamp.format("HH:mm"));
-                    $('#add_event_clockpicker_end input').attr('value', end_stamp.format("HH:mm"));
-                    $('#add_event_placepicker_wrapper select').val(event.place.id).trigger('chosen:updated');
-                    $('#add_event_peoplepicker_wrapper select').val(people).trigger('chosen:updated');
-                    $('#add_event_modal').modal('show');
-                });
+                if( can_edit ){
+                    var details = $(element.currentTarget).find('.event_details');
+                    people = [];
+                    var start_stamp = moment.utc(parseInt($(details).attr('event_start')));
+                    var end_stamp = moment.utc(parseInt($(details).attr('event_end')));
+                    $(details).find('.event_details_people span').each(function(){
+                        people.push($(this).attr('person_id'))
+                    });
+                    place_id = parseInt(event.place.id);
+                    load_modal_components(function(){
+                        $('#add_event_modal .modal-title').text('Update Event');
+                        $('#modal_add_event').text('Update');
+                        $('#modal_delete_event').show();
+                        $('#add_event_form').attr('event_id', event['id']);
+                        $('#add_event_name').val($(details).attr('event_title'));
+                        $('#add_event_description').val($(details).find('.event_details_description span').text());
+                        $('#add_event_datepicker_start input').attr('value', start_stamp.format("DD/MM/YY"));
+                        $('#add_event_datepicker_end input').attr('value', end_stamp.format("DD/MM/YY"));
+                        $('#add_event_clockpicker_start input').attr('value', start_stamp.format("HH:mm"));
+                        $('#add_event_clockpicker_end input').attr('value', end_stamp.format("HH:mm"));
+                        $('#add_event_placepicker_wrapper select').val(event.place.id).trigger('chosen:updated');
+                        $('#add_event_peoplepicker_wrapper select').val(people).trigger('chosen:updated');
+                        $('#add_event_modal').modal('show');
+                    });
+                };
             }
         });
     }
@@ -325,47 +346,34 @@ function load_planner(){
         $('#add_event_modal .modal-title').text('Add Event');
         $('#modal_add_event').text('Add');
         $('#modal_delete_event').hide();
-        $.when(
-            ajax_call({
-                'url': '/places',
-                'type': 'get',
-                'notify': false,
-                'success': function(input){
-                    $('#add_event_placepicker_wrapper').html(single_select_tmpl({
-                        'options': input.data,
-                        'id': 'add_event_placepicker',
-                        'placeholder': ' ',
-                        'tabindex': '2'
-                    }));
-                    $("#add_event_placepicker").chosen();
-                    $("#add_event_placepicker").on('change', function(evt, params) { place_id = params.selected; });
-                }
-            }),
-            ajax_call({
-                'url': '/people',
-                'type': 'get',
-                'notify': false,
-                'success': function(input){
-                    $('#add_event_peoplepicker_wrapper').html(multi_select_tmpl({
-                        'options': input.data,
-                        'id': 'add_event_peoplepicker',
-                        'placeholder': ' ',
-                        'tabindex': '3'
-                    }));
-                    $("#add_event_peoplepicker").chosen();
-                    $("#add_event_peoplepicker").on('change', function(evt, params) {
-                        if( params.selected != undefined )
-                            people.push(params.selected);
-                        if( params.deselected != undefined )
-                            people.splice(people.indexOf(params.deselcted), 1);
-                    });
-                    $('#add_event_name').focus();
-                }
-            })
-        ).done(function(){
-            if( callback !== undefined)
-                callback();
+
+        $('#add_event_placepicker_wrapper').html(single_select_tmpl({
+            'options': place_data,
+            'id': 'add_event_placepicker',
+            'placeholder': ' ',
+            'tabindex': '2'
+        }));
+        $("#add_event_placepicker").chosen();
+        $("#add_event_placepicker").on('change', function(evt, params) { place_id = params.selected; });
+
+        $('#add_event_peoplepicker_wrapper').html(multi_select_tmpl({
+            'options': people_data,
+            'id': 'add_event_peoplepicker',
+            'placeholder': ' ',
+            'tabindex': '3'
+        }));
+        $("#add_event_peoplepicker").chosen();
+        $("#add_event_peoplepicker").on('change', function(evt, params) {
+            if( params.selected != undefined )
+                people.push(params.selected);
+            if( params.deselected != undefined )
+                people.splice(people.indexOf(params.deselcted), 1);
         });
+
+        $('#add_event_name').focus();
+
+        if( callback !== undefined)
+            callback();
     }
 
     var save_event_validation = [
@@ -428,33 +436,35 @@ function load_planner(){
     }
 
     function add_handlers(){
-        ajax_call({
-            'url': '/places',
-            'type': 'get',
-            'notify': false,
-            'success': function(input){
-                if( input.data.length == 0 ){
-                    $("#add_event_btn").on("click", function(e){
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toastr.error('You need to add some Places first. Go to the Places tab.', 'Oh No!', {
-                            'timeOut': 3000,
-                            'progressBar': true
-                        });
-                    });
-                }else{
-                    $("#add_event_btn").on("click", load_modal_components);
-                    $("#modal_add_event").on("click", save_event);
-                    $("#modal_delete_event").on("click", delete_event);
-                    $("#add_event_btn").on("click", reset_modal);
-                }
-            }
-        });
+        if( place_data.length == 0 ){
+            $("#add_event_btn").on("click", function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                toastr.error('You need to add some Places first. Go to the Places tab.', 'Oh No!', {
+                    'timeOut': 3000,
+                    'progressBar': true
+                });
+            });
+        }else{
+            $("#add_event_btn").on("click", load_modal_components);
+            $("#modal_add_event").on("click", save_event);
+            $("#modal_delete_event").on("click", delete_event);
+            $("#add_event_btn").on("click", reset_modal);
+        }
+    }
+
+    $(page_main).html(planner_tmpl());
+    var datepicker_start = $('#add_event_datepicker_start .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
+    var clockpicker_start = $('#add_event_clockpicker_start').clockpicker();
+    var datepicker_end = $('#add_event_datepicker_end .input-group.date').datepicker({format: "dd/mm/yy", todayBtn: "linked", keyboardNavigation: false, forceParse: false, calendarWeeks: true, autoclose: true});
+    var clockpicker_end = $('#add_event_clockpicker_end').clockpicker({placement: 'top'});
+
+    if( can_edit ) {
+        load_data();
+        reset_modal();
     }
 
     load_planner();
-    add_handlers();
-    reset_modal();
 }
 
 function load_people(){
