@@ -16,8 +16,6 @@ def send(recipient, subject, title, content, button_link, button_caption):
         button_link=button_link
     ))
 
-    # TODO - remove this
-    recipient = 'ianluddy@gmail.com'
     sender = MAIL_SENDER
 
     data = {
