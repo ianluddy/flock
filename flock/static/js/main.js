@@ -271,6 +271,7 @@ function load_planner(){
                 left: 'prev,next today',
                 center: 'title',
                 right: 'agendaDay,agendaWeek',
+                // right: 'agendaDay,agendaWeek,month',
             },
             defaultView: "agendaDay",
             height: $('#page-wrapper').height(),
@@ -350,7 +351,7 @@ function load_planner(){
         $('#add_event_placepicker_wrapper').html(single_select_tmpl({
             'options': place_data,
             'id': 'add_event_placepicker',
-            'placeholder': ' ',
+            'placeholder': 'Choose a Place',
             'tabindex': '2'
         }));
         $("#add_event_placepicker").chosen();
@@ -379,7 +380,7 @@ function load_planner(){
     var save_event_validation = [
         {'elem': '#add_event_name'},
         {'elem': '#add_event_placepicker_chosen', 'eval': function(element){
-            if( $(element).find('.chosen-single span').text().replace(' ','').length > 0 ){
+            if( place_id != null && place_id.length > 0 ){
                 return true;
             }
             return 'Required';
@@ -468,7 +469,7 @@ function load_planner(){
 }
 
 function load_people(){
-    var sort_by, sort_dir, search, roles, people, count;
+    var sort_by, sort_dir, search, roles, people, count, role_id;
     var page = 0;
     var limit = 10;
 
@@ -512,6 +513,7 @@ function load_people(){
     }
 
     function reset_people_form(){
+        role_id = null;
         $("#add_person_form").attr("person_id", "");
         $("#add_person_invite_box").show();
         $('#add_person_email').removeAttr('disabled');
@@ -520,6 +522,14 @@ function load_people(){
         $('#add_person_phone').val('');
         $("#modal_add_person").text('Add');
         $("#add_people_modal .modal-title").text("Add a Person");
+        $('#add_person_rolepicker_wrapper').html(single_select_tmpl({
+            'options': roles,
+            'id': 'add_person_rolepicker',
+            'placeholder': 'Choose Role',
+            'tabindex': '4'
+        }));
+        $("#add_person_rolepicker").chosen();
+        $("#add_person_rolepicker").on('change', function(evt, params) { role_id = params.selected; });
     }
 
     function reload_people(){
@@ -559,13 +569,19 @@ function load_people(){
 
     var add_person_validation = [
         {'elem': '#add_person_name'},
-        {'elem': '#add_person_email', 'eval': email_evaluator}
+        {'elem': '#add_person_email', 'eval': email_evaluator},
+        {'elem': '#add_person_rolepicker_chosen', 'eval': function(element){
+            if( role_id != null && role_id.length > 0 ){
+                return true;
+            }
+            return 'Required';
+        }}
     ];
     function add_person(e){
         e.preventDefault();
         if( valid8(add_person_validation) ){
             var person = {
-                'role': $('#role_dropdown_value').attr('role_id'),
+                'role': role_id,
                 'name': $('#add_person_name').val(),
                 'email': $('#add_person_email').val()
             };
@@ -614,18 +630,10 @@ function load_people(){
         var to_invite = {'email': $(this).attr("email")};
         ajax_call({'url': '/people/invite', 'type': 'post', 'data': to_invite, 'success': reload_people});
     }
-    
-    function choose_role(){
-        $("#role_dropdown_value").removeClass().addClass("themed themed-" + $(this).attr("role_theme"));
-        $("#role_dropdown_value").attr("role_id", $(this).attr("role_id"));
-        $("#role_dropdown_value").text($(this).attr("role_name"));
-    }
-    
+
     function add_handlers(){
         $('#modal_add_person').on('click', add_person);
         $('#add_person_btn').on('click', reset_people_form);
-        $('#role_dropdown_choice li > a').on('click', choose_role);
-        $('#role_dropdown_choice li > a:first').click();
         $('#people_table_search').on('keyup', function(){
             delay(function(){
                 page = 0;
