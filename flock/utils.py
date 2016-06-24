@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 from uuid import uuid4, uuid5, NAMESPACE_DNS
 import hashlib
 from flask import make_response, abort
+from constants import PERMISSIONS
 from mongoengine import QuerySet
 
 def plain_text_to_html(content):
@@ -87,6 +88,12 @@ def float_to_two_places(x):
 
 def capitalise(string):
     return string.title()
+
+def evaluate_permissions(permissions):
+    rank = 0
+    for permission in permissions:
+        rank += PERMISSIONS[permission]
+    return rank
 
 def json_response(response):
 

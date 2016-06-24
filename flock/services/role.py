@@ -19,5 +19,6 @@ def update(role):
     db.person_role_update(role)
     notify(u'{} edited a Role - <b>%s</b>' % role['name'], action='edit', target='person')
 
-def get(role_id=None, company_id=None):
-    return db.role_get(role_id=role_id, company_id=company_id)
+def get(role_id=None, company_id=None, user_id=None):
+    rank = None if user_id is None else db.person_get(user_id=user_id).role.rank
+    return db.role_get(role_id=role_id, company_id=company_id, rank=rank)

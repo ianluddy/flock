@@ -1,5 +1,6 @@
-from mongoengine import Document, SequenceField, StringField, BooleanField, ReferenceField, ListField, DateTimeField
+from mongoengine import Document, SequenceField, IntField, StringField, BooleanField, ReferenceField, ListField, DateTimeField
 from mongoengine import PULL, DENY, NULLIFY
+from constants import PERMISSIONS
 from datetime import datetime
 from utils import account_token
 
@@ -45,6 +46,7 @@ class Role(Document, Base):
     theme = StringField(nullable=False)
     company = ReferenceField('Company', nullable=False)
     permissions = ListField(StringField(nullable=False), nullable=False)
+    rank = IntField(nullable=False, default=0)
 
 class Person(Document, Base):
     # TODO - allow email to be registered with multiple companies
@@ -120,17 +122,17 @@ class Company(Document, Base):
     def save(self, *args, **kwargs):
 
         # Create default Roles
-        admin = Role(name='Administrator', theme='success', company=self,
+        admin = Role(name='Administrator', theme='success', rank=40, company=self,
              permissions=[
                  'edit_events', 'edit_people', 'edit_places', 'edit_system_settings'
              ]
         ).save()
-        Role(name='Regular User', theme='primary', company=self,
+        Role(name='Regular User', theme='primary', rank=18, company=self,
              permissions=[
                  'edit_events', 'edit_people', 'edit_places'
              ]
         ).save()
-        Role(name='Read-Only User', theme='warning', company=self,
+        Role(name='Read-Only User', theme='warning', rank=0, company=self,
              permissions=[
                  'view_events', 'view_people', 'view_places'
              ]

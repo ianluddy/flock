@@ -4,7 +4,7 @@ from werkzeug.exceptions import abort
 import models as mo
 from constants import *
 from models import *
-from utils import random_password, validate_password
+from utils import random_password, validate_password, evaluate_permissions
 from mongoengine import NotUniqueError, DoesNotExist
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -383,9 +383,12 @@ class Database():
 
     #### Role ####
 
-    def role_get(self, company_id=None, role_id=None):
+    def role_get(self, company_id=None, role_id=None, rank=None):
 
         query = {}
+
+        if rank is not None:
+            query['rank'] = {'$lte': rank}
 
         if company_id:
             query['company'] = int(company_id)
@@ -401,13 +404,15 @@ class Database():
             abort(400, 'A Role with this name already exists.')
 
         role['company'] = company_id
+        role['rank'] = evaluate_permissions(role['permissions'])
         Role(**role).save()
 
     def role_update(self, role):
         Role.objects(id=role['id']).update_one(
             theme=role['theme'],
             name=role['name'],
-            permissions=role['permissions']
+            permissions=role['permissions'],
+            rank=evaluate_permissions(role['permissions'])
         )
 
     def person_role_update(self, role):

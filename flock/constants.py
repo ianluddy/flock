@@ -3,15 +3,15 @@
 
 SESSION_DURATION = 1800
 SECRET_KEY = "\x13`4\xf5\x90:(Qs\xa2\x0f\xd8\xbe\xee\x1b5Ae!\x9b\xd4\xe8\xf1\x94"
-PERMISSIONS = [
-    'view_events',
-    'edit_events',
-    'view_people',
-    'edit_people',
-    'view_places',
-    'edit_places',
-    'edit_system_settings'
-]
+PERMISSIONS = {
+    'view_events': 1,
+    'edit_events': 2,
+    'view_people': 4,
+    'edit_people': 5,
+    'view_places': 10,
+    'edit_places': 11,
+    'edit_system_settings': 22
+}
 
 # TODO - use non dev server
 MAIL_AUTH = ("api", "key-97da181732b95a21257c270bd2215529")
@@ -30,42 +30,49 @@ TEST_DATA = {
             'name': 'Manager',
             'permissions': ['edit_events', 'edit_people', 'edit_places', 'edit_system_settings'],
             'company': -1,
-            'theme': 'success'
+            'theme': 'success',
+            'rank': 40
         },
         {
             'id': -2,
             'name': 'Trainee',
             'permissions': ['edit_events', 'edit_people', 'edit_places'],
             'company': -1,
-            'theme': 'danger'
+            'theme': 'danger',
+            'rank': 18
         },
         {
             'id': -3,
             'name': 'Connector',
             'permissions': ['edit_events', 'edit_people', 'edit_places'],
             'company': -1,
-            'theme': 'warning'
+            'theme': 'warning',
+            'rank': 18
         },
         {
             'id': -4,
             'name': 'Independent',
             'permissions': ['edit_events', 'edit_people', 'edit_places'],
             'company': -1,
-            'theme': 'info'
+            'theme': 'info',
+            'rank': 18
         },
         {
             'id': -5,
             'name': 'Student',
             'permissions': ['view_events', 'view_people', 'view_places'],
             'company': -1,
-            'theme': 'primary'
+            'theme': 'primary',
+            'rank': 15
         },
         {
             'id': -6,
             'name': 'External',
             'permissions': [],
             'company': -1,
-            'theme': 'info'
+            'theme': 'info',
+            'rank': 0
+
         }
     ],
     'Person': [

@@ -324,7 +324,7 @@ def events_delete(event):
 @app.route('/roles', methods=['GET'])
 @auth()
 def roles():
-    return json_response(role_service.get(company_id=session['company_id']))
+    return json_response(role_service.get(company_id=session['company_id'], user_id=session['user_id']))
 
 @app.route('/roles', methods=['PUT'])
 @auth(['edit_system_settings'])
