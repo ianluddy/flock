@@ -163,7 +163,7 @@ class Database():
     def reset_user(self, email):
         new_password = random_password()
         try:
-            user = self.person_get(mail=email)
+            user = self.person_get(email=email)
             user.password = generate_password_hash(new_password)
             user.save()
             return new_password
