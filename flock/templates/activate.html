@@ -57,8 +57,9 @@
     <script>
         function activate(){
             if( $('input:checkbox').is(':checked') ){
-                $('.sk-spinner').show();
-                $('.form-group').css('opacity', '0.6');
+                // $('.sk-spinner').show();
+                $('.form-group').css('opacity', '0.4');
+                $('#submit').css('opacity', '0.4');
                 $.ajax({
                     url: '../activate',
                     type: 'post',
@@ -70,13 +71,14 @@
                     },
                     complete: function(data) {
                         $('.sk-spinner').hide();
-                        $('.form-group').css('opacity', '1');
                     },
                     success: function(data) {
                         $('#wrong').hide();
                         window.location.href = '/';
                     },
                     error: function(data) {
+                        $('#submit').css('opacity', '1');
+                        $('.form-group').css('opacity', '1');
                         $('#wrong').text(data.responseText.replace('</p>', '').split('<p>').slice(-1)[0]).fadeIn();
                     }
                 });

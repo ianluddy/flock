@@ -77,14 +77,14 @@
                     },
                     complete: function(data) {
                         // $('.sk-spinner').hide();
-                        $('.form-group').css('opacity', '1');
-                        $('#submit').css('opacity', '1');
                     },
                     success: function(data) {
                         $('#wrong').hide();
                         window.location.href = '/';
                     },
                     error: function(data) {
+                        $('.form-group').css('opacity', '1');
+                        $('#submit').css('opacity', '1');
                         $('#wrong').text(data.responseText.replace('</p>', '').split('<p>').slice(-1)[0]).fadeIn();
                     }
                 });
