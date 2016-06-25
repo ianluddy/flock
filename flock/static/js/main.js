@@ -304,7 +304,7 @@ function load_planner(){
                     $(details).find('.event_details_people span').each(function(){
                         people.push($(this).attr('person_id'))
                     });
-                    place_id = parseInt(event.place.id);
+                    place_id = event.place.id.toString();
                     load_modal_components(function(){
                         $('#add_event_modal .modal-title').text('Update Event');
                         $('#modal_add_event').text('Update');
@@ -392,7 +392,6 @@ function load_planner(){
     ];
     function save_event(e){
         e.preventDefault();
-
         if( valid8(save_event_validation) ){
             var event = {};
             var event_id = $('#add_event_form').attr('event_id');
@@ -418,6 +417,7 @@ function load_planner(){
                     'success': reload_planner
                 });
             }
+            reset_modal();
         }
     }
 
@@ -433,6 +433,7 @@ function load_planner(){
                 'data': event,
                 'success': reload_planner
             });
+            reset_modal();
         }
     }
 
