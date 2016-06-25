@@ -1,6 +1,6 @@
 from flock.app import db_wrapper as db
 from flask import abort
-from flock.services import mail
+from flock.services import mail, company
 from flock.services.notification import notify
 
 def invite(email, sender_id, company_id):
@@ -32,9 +32,13 @@ def update(person):
     db.person_update(person)
     notify(u'{} updated details for <b>%s</b>' % person['name'], action='edit', target='person')
 
-def delete(user_id):
-    user_name = db.person_get(user_id=user_id).name
-    db.person_delete(user_id)
+def delete(person_id, user_id, company_id):
+    if person_id == user_id:
+        abort(400, "You can't delete your own account. Coming soon!")
+    if company.get(company_id).owner.id == person_id:
+        abort(400, "You can't delete the company's owner")
+    user_name = db.person_get(user_id=person_id).name
+    db.person_delete(person_id)
     notify(u'{} deleted a Person - <b>%s</b>' % user_name, action='delete', target='person')
 
 def get(company_id=None, role_id=None, email=None, search=None, sort_by=None, sort_dir=None, limit=None,

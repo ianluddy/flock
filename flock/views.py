@@ -188,9 +188,7 @@ def reset_user():
 @auth(['edit_people'])
 @parse_args(int_args=['id'], string_args=['name'])
 def people_delete(person):
-    if person["id"] == session['user_id']:
-        abort(400, "You can't delete your own account :)")
-    person_service.delete(person["id"])
+    person_service.delete(person["id"], session['user_id'], session['company_id'])
     return u'{} has been deleted'.format(person["name"]), 200
 
 @app.route('/people', methods=['GET'])
