@@ -7150,6 +7150,8 @@ body.rtls .stat-percent {
 }
 body.rtls .navbar-right {
   float: left !important;
+  position: relative;
+  top: 1px;
 }
 body.rtls .navbar-top-links li:last-child {
   margin-left: 40px;
@@ -8764,4 +8766,31 @@ a.chosen-single, .chosen-choices{
 .val_error i{
     padding-right: 6px;
     font-size: 1.2em;
+}
+.person_row .img-circle{
+    width: 30px;
+    height: 30px;
+}
+.person_row td:first-child, #people_table th:first-child{
+    padding: 2px;
+    width: 45px;
+}
+#account_image, #account_image_btn{
+    text-align: center;
+}
+#account_image img{
+    width: 200px;
+    height: 200px;
+    border: 3px solid #1ab394;
+}
+#account_image_btn{
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+}
+#account_image_btn .btn{
+    float: none;
+}
+#account_image_progress{
+
 }

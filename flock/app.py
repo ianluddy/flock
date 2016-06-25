@@ -31,6 +31,7 @@ app.config['MONGODB_SETTINGS'] = {
     'host': cfg["database"]["host"],
     'port': cfg["database"]["port"]
 }
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 102
 
 # Celery
 app.config['CELERY_BROKER_URL'] = cfg['redis']['url']

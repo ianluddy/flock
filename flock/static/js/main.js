@@ -162,17 +162,24 @@ function loadr(show){
 }
 
 function load_account(){
+    var user;
     $(page_main).html(account_tmpl());
-    ajax_call({
-        'url': '/user',
-        'type': 'get',
-        'notify': false,
-        'success': function(input){
-            $('#account_name').val(input['name']);
-            $('#account_phone').val(input['phone']);
-            $('#account_email').val(input['email']);
-        }
-    });
+    load_user();
+
+    function load_user(){
+        ajax_call({
+            'url': '/user',
+            'type': 'get',
+            'notify': false,
+            'success': function(input){
+                user = input;
+                $('#account_image img').attr('src', input['image']);
+                $('#account_name').val(input['name']);
+                $('#account_phone').val(input['phone']);
+                $('#account_email').val(input['email']);
+            }
+        });
+    };
 
     var update_account_validation = [{'elem': '#account_name'}];
     $('#update_account_btn').on('click', function(e){
@@ -183,7 +190,8 @@ function load_account(){
                 'type': 'post',
                 'data': {
                     'name': $('#account_name').val(),
-                    'phone': $('#account_phone').val()
+                    'phone': $('#account_phone').val(),
+                    'image': user['image']
                 },
                 "success": function(){
                     $("#account a span").text($('#account_name').val());
@@ -205,6 +213,39 @@ function load_account(){
                 }
             });
         };
+    });
+
+    function refresh_image(){
+        load_user();
+        $('#account_image_progress .progress-bar').fadeOut(function(){
+            $('#account_image_progress .progress-bar').css('width', '0%');
+            $('#account_image_progress .progress-bar').animate({'width': '0%'}, function(){
+                $('#account_image_progress .progress-bar').css('display', 'block');
+            });
+        });
+    }
+
+    $('#profile_fileupload').fileupload({
+        url: '/image',
+        autoUpload: true,
+        done: function (e, data) {
+            notify_success(data.result);
+            setTimeout(function(){ refresh_image() }, 1000);
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#account_image_progress .progress-bar').css('width', progress + '%');
+        },
+        error: function (e, data){
+            setTimeout(function(){ refresh_image() }, 1000);
+            var message = e.responseText;
+            if( message == undefined) {
+                message = "That file is too large. Try a smaller one";
+            }else{
+                message = strip_response_msg(message);
+            }
+            notify_error(message);
+        }
     });
 }
 function load_dashboard(){

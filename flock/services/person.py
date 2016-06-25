@@ -41,7 +41,7 @@ def delete(person_id, user_id, company_id):
     db.person_delete(person_id)
     notify(u'{} deleted a Person - <b>%s</b>' % user_name, action='delete', target='person')
 
-def get(company_id=None, role_id=None, email=None, search=None, sort_by=None, sort_dir=None, limit=None,
+def get(company_id=None, user_id=None, role_id=None, email=None, search=None, sort_by=None, sort_dir=None, limit=None,
         offset=None):
-    return db.person_get(company_id=company_id, role_id=role_id, search=search, sort_by=sort_by,
+    return db.person_get(company_id=company_id, user_id=user_id, role_id=role_id, search=search, sort_by=sort_by,
                               sort_dir=sort_dir, limit=limit, offset=offset, email=email)

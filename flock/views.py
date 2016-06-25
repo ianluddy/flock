@@ -1,7 +1,7 @@
 from flask import request, redirect, url_for, render_template, session, abort
 from functools import wraps
 from utils import json_response
-from constants import PAGE_SIZE, SESSION_DURATION
+from constants import PAGE_SIZE, SESSION_DURATION, PROFILE_IMAGE_DIR, PROFILE_IMAGE_TYPES
 from services import notification as notification_service
 from services import role as role_service
 from services import account as account_service
@@ -10,6 +10,7 @@ from services import person as person_service
 from services import place as place_service
 from flock.app import db_wrapper
 import json
+import os
 from datetime import datetime
 from time import time
 import __builtin__
@@ -153,7 +154,7 @@ def user():
     return json_response(person_service.get(session['company_id'], email=session['email']).to_dict())
 
 @app.route('/user', methods=['POST'])
-@parse_args(string_args=['phone', 'name'])
+@parse_args(string_args=['phone', 'name', 'image'])
 def user_post(user):
     user.update({
         'id': session['user_id'],
@@ -169,6 +170,11 @@ def password_post(password):
     db_wrapper.authenticate_user(session['email'], password['current'])
     db_wrapper.update_password(session['email'], password['new'])
     return "Password Updated", 200
+
+@app.route('/image', methods=['POST'])
+def image_post():
+    account_service.upload_image(session['user_id'], request.files['files[]'])
+    return "Profile Image Updated", 200
 
 @app.route('/login_user', methods=['POST'])
 @parse_args(string_args=['password', 'email'])

@@ -193,6 +193,11 @@ class Database():
                 phone=person['phone'],
             )
 
+        if 'image' in person:
+            Person.objects(id=int(person['id'])).update_one(
+                image=person['image'],
+            )
+
     def person_add(self, new_person):
 
         role = Role.objects(id=new_person['role']).get()

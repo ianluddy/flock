@@ -231,63 +231,86 @@
 <script id="account_tmpl" type="text/x-handlebars-template">
     <div id="account_pane" class="pane animated fadeInDown">
         <div class="col-md-6">
-            <h3 class="account-header"> Account </h3>
-            <form id="account_info_form" place_id="" class="form-horizontal">
-                <div class="form-group">
-                    <label class="col-md-2">Name</label>
-                    <div class="col-md-8">
-                      <input id="account_name" name="name" type="text" class="form-control input-lg req-input">
-                    </div>
-                    <label class="col-md-2"></label>
+            <h3 class="account-header"> Photo </h3>
+            <div id="account_image_upload_wrapper">
+                <div id="account_image">
+                    <img alt="image" class="img-circle" src="">
                 </div>
-                <div class="form-group">
-                    <label class="col-md-2">Phone</label>
-                    <div class="col-md-8">
-                        <input id="account_phone" name="phone" type="text" placeholder="01-1234567" class="form-control input-lg"></input>
-                    </div>
-                    <label class="col-md-2"></label>
+                <div id="account_image_btn">
+                    <span class="btn btn-primary fileinput-button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Upload Photo</span>
+                        <!-- The file input field used as target for the file upload widget -->
+                        <input id="profile_fileupload" type="file" name="files[]" multiple>
+                    </span>
                 </div>
-                <div class="form-group">
-                    <label class="col-md-2">Email</label>
-                    <div class="col-md-8">
-                        <input id="account_email" type="email" disabled="" class="form-control input-lg">
-                    </div>
-                    <label class="col-md-2"></label>
+                <div id="account_image_progress" class="progress">
+                    <div class="progress-bar progress-bar"></div>
                 </div>
-                <div class="form-group">
-                    <label class="col-md-2"></label>
-                    <div class="col-md-8">
-                        <button id="update_account_btn" class="btn btn-primary">Update Details</button>
-                    </div>
-                    <label class="col-md-2"></label>
-                </div>
-            </form>
+                <!-- The container for the uploaded files -->
+                <div id="files" class="files"></div>
+            </div>
         </div>
         <div class="col-md-6">
-            <h3 class="account-header"> Password </h3>
-            <form id="password_form" class="form-horizontal" data-toggle="validator">
-                <div class="form-group">
-                    <label class="col-md-2">Current Password</label>
-                    <div class="col-md-8">
-                      <input id="password_current" type="password" class="form-control input-lg req-input" required="">
+            <div>
+                <h3 class="account-header"> Details </h3>
+                <form id="account_info_form" place_id="" class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2">Name</label>
+                        <div class="col-md-8">
+                          <input id="account_name" name="name" type="text" class="form-control input-lg req-input">
+                        </div>
+                        <label class="col-md-2"></label>
                     </div>
-                    <label class="col-md-2"></label>
-                </div>
-                <div class="form-group">
-                    <label class="col-md-2">New Password</label>
-                    <div class="col-md-8">
-                        <input id="password_new" type="password" class="form-control input-lg req-input" required="">
+                    <div class="form-group">
+                        <label class="col-md-2">Phone</label>
+                        <div class="col-md-8">
+                            <input id="account_phone" name="phone" type="text" placeholder="01-1234567" class="form-control input-lg"></input>
+                        </div>
+                        <label class="col-md-2"></label>
                     </div>
-                    <label class="col-md-2"></label>
-                </div>
-                <div class="form-group">
-                    <label class="col-md-2"></label>
-                    <div class="col-md-8">
-                        <button id="change_password_btn" class="btn btn-primary">Change Password</button>
+                    <div class="form-group">
+                        <label class="col-md-2">Email</label>
+                        <div class="col-md-8">
+                            <input id="account_email" type="email" disabled="" class="form-control input-lg">
+                        </div>
+                        <label class="col-md-2"></label>
                     </div>
-                    <label class="col-md-2"></label>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label class="col-md-2"></label>
+                        <div class="col-md-8">
+                            <button id="update_account_btn" class="btn btn-primary">Update Details</button>
+                        </div>
+                        <label class="col-md-2"></label>
+                    </div>
+                </form>
+            </div>
+            <div style="padding-bottom: 20px;">
+                <h3 class="account-header"> Password </h3>
+                <form id="password_form" class="form-horizontal" data-toggle="validator">
+                    <div class="form-group">
+                        <label class="col-md-2">Current Password</label>
+                        <div class="col-md-8">
+                          <input id="password_current" type="password" class="form-control input-lg req-input" required="">
+                        </div>
+                        <label class="col-md-2"></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2">New Password</label>
+                        <div class="col-md-8">
+                            <input id="password_new" type="password" class="form-control input-lg req-input" required="">
+                        </div>
+                        <label class="col-md-2"></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2"></label>
+                        <div class="col-md-8">
+                            <button id="change_password_btn" class="btn btn-primary">Change Password</button>
+                        </div>
+                        <label class="col-md-2"></label>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </script>
@@ -456,6 +479,7 @@
                 <thead>
                 <tr>
                     <!--<th>{{> checkbox_part}}</th>-->
+                    <th></th>
                     <th>Name <i sorter="name" class="table-sorter fa fa-sort"></i></th>
                     <th>Mail <i sorter="mail" class="table-sorter fa fa-sort"></i></th>
                     <th>Phone <i sorter="phone" class="table-sorter fa fa-sort"></i></th>
@@ -532,6 +556,7 @@
     {{#each people}}
         <tr class="person_row" person_id="{{_id}}">
             <!--<td>{{> checkbox_part}}</td>-->
+            <td><img alt="image" class="img-circle" src="{{image}}"></td>
             <td class="person_name">{{name}}</td>
             <td class="person_email">{{#if email}} {{email}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
             <td class="person_phone">{{#if phone}} {{phone}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>

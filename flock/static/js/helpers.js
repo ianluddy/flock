@@ -48,6 +48,14 @@ function ajax_load(func, args, callback, timeout){
     });
 }
 
+function notify_success(text){
+    toastr.success(text, 'Success!', {'timeOut':2000, 'progressBar':true});
+}
+
+function notify_error(text){
+    toastr.error(text, 'Oh No!', {'timeOut': 3000, 'progressBar': true});
+}
+
 function ajax_call(options){
     var url = options.url;
     var data = options.data;
@@ -68,23 +76,16 @@ function ajax_call(options){
             if (options.success != undefined)
                 options.success(data);
             if (options.notify != false)
-                toastr.success(data, 'Success!', {'timeOut':2000, 'progressBar':true});
+                notify_success(data);
         },
         error: function(data) {
             if (options.error != undefined)
                 options.error(data);
             if (options.notify != false) {
                 if (data.responseText.indexOf('500 Internal Server Error') != -1) {
-                    toastr.error('Something went wrong, the error has been logged', 'Oh No!', {
-                        'timeOut': 3000,
-                        'progressBar': true
-                    });
+                    notify_error('Something went wrong, the error has been logged');
                 } else {
-                    // TODO - this better
-                    toastr.error(strip_response_msg(data.responseText), 'Oh No!', {
-                        'timeOut': 3000,
-                        'progressBar': true
-                    });
+                    notify_error(strip_response_msg(data.responseText));
                 }
             }
         }
@@ -142,36 +143,6 @@ function date_string(unix_timestamp){
     // Will display time in 10:30:23 format
     var formattedTime = hours + ':' + minutes.substr(-2);
     return formattedTime;
-}
-
-function add_file_uploader(target, api_call, callback) {
-    $(target).html($("#upload_file").tmpl({"api_call": api_call}));
-    $('#fileuploader').fileupload({
-        dataType: 'json',
-        autoUpload: false,
-        multipart: true,
-        dropZone: $('#file_dropzone'),
-        progressall: function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            $(".upload_progress .progress-bar").css("width", progress.toString()+"%");
-            $(".upload_progress .progress-bar").attr("aria-valuenow", progress.toString());
-        },
-        stop: function (e, data) {
-            setTimeout(function(){$(".upload_progress").fadeOut(500);}, 1000);
-            info_msg("Saved");
-            callback();
-        },
-        start: function (e, data) {
-            $('#file_dropzone').removeClass('accept');
-            $("#file_upload_progress").css("width","0%");
-            $(".upload_progress .progress-bar").attr("aria-valuenow", "0");
-            $(".upload_progress .progress-bar").css("width","0%");
-            $(".upload_progress").fadeIn(100);
-        },
-        dragover : function(e){
-            $('#file_dropzone').addClass('accept');
-        },
-    }).on('dragleave', function(){$('#file_dropzone').removeClass('accept');})
 }
 
 function default_evaluator(element){
