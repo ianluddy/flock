@@ -1,7 +1,7 @@
 from flask import request, redirect, url_for, render_template, session, abort
 from functools import wraps
 from utils import json_response
-from constants import PAGE_SIZE, SESSION_DURATION, PROFILE_IMAGE_DIR, PROFILE_IMAGE_TYPES
+from constants import PAGE_SIZE, SESSION_DURATION
 from services import notification as notification_service
 from services import role as role_service
 from services import account as account_service
@@ -10,7 +10,6 @@ from services import person as person_service
 from services import place as place_service
 from flock.app import db_wrapper
 import json
-import os
 from datetime import datetime
 from time import time
 import __builtin__
@@ -67,19 +66,24 @@ def heartbeat():
 
 @app.route('/')
 def root():
-    if session.get('user_id') is None:
+    current_user = session.get('user_id')
+
+    if current_user is None:
         return redirect(url_for('login'))
 
     permissions = db_wrapper.permissions_get(session['user_id'])
     if permissions is None:
         return redirect(url_for('login'))
 
+    current_user = person_service.get(user_id=current_user)
+
     return render_template(
         'index.html',
-        user_name=session['user_name'],
-        user_id=session['user_id'],
-        company_id=session['company_id'],
-        company_name=session['company_name'],
+        user_name=current_user.name,
+        user_id=current_user.id,
+        company_id=current_user.company.id,
+        company_name=current_user.company.name,
+        image=current_user.image,
         permissions=permissions
     )
 
@@ -121,8 +125,7 @@ def activate_account(account):
         account['name'],
         account['password']
     )
-    session['user_id'], session['user_name'], session['company_id'], session['company_name'], session['email'] = \
-        db_wrapper.authenticate_user(account['email'], account['password'])
+    session['user_id'], session['company_id'] = db_wrapper.authenticate_user(account['email'], account['password'])
     return 'Account Activated :)', 200
 
 @app.route('/forgot_password')
@@ -151,24 +154,23 @@ def register(user):
 
 @app.route('/user', methods=['GET'])
 def user():
-    return json_response(person_service.get(session['company_id'], email=session['email']).to_dict())
+    return json_response(person_service.get(user_id=session['user_id']).to_dict())
 
 @app.route('/user', methods=['POST'])
 @parse_args(string_args=['phone', 'name', 'image'])
 def user_post(user):
     user.update({
-        'id': session['user_id'],
-        'email': session['email']
+        'id': session['user_id']
     })
     person_service.update(user)
-    session['user_name'] = user['name']
     return 'Account Updated', 200
 
 @app.route('/password', methods=['POST'])
 @parse_args(string_args=['new', 'current'])
 def password_post(password):
-    db_wrapper.authenticate_user(session['email'], password['current'])
-    db_wrapper.update_password(session['email'], password['new'])
+    user = person_service.get(user_id=session['user_id'])
+    db_wrapper.authenticate_user(user.email, password['current'])
+    db_wrapper.update_password(session['user_id'], password['new'])
     return "Password Updated", 200
 
 @app.route('/image', methods=['POST'])
@@ -179,8 +181,7 @@ def image_post():
 @app.route('/login_user', methods=['POST'])
 @parse_args(string_args=['password', 'email'])
 def login_user(user):
-    session['user_id'], session['user_name'], session['company_id'], session['company_name'], session['email'] = \
-        db_wrapper.authenticate_user(user['email'], user['password'])
+    session['user_id'], session['company_id'] = db_wrapper.authenticate_user(user['email'], user['password'])
     return 'Logged in :)', 200
 
 @app.route('/reset_user', methods=['POST'])
@@ -214,7 +215,6 @@ def people():
 @auth(['edit_people'])
 @parse_args(string_args=['name', 'email', 'phone'], bool_args=['invite'], int_args=['id', 'role'])
 def people_put(person):
-    person['company'] = session['company_id']
     person_service.update(person)
     return u'{} has been updated'.format(person['name']), 200
 
@@ -222,15 +222,15 @@ def people_put(person):
 @auth(['edit_people'])
 @parse_args(string_args=['name', 'email', 'phone'], bool_args=['invite'], int_args=['role'])
 def people_post(person):
-    person['company'] = session['company_id']
-    person_service.add(person, session['user_id'], session['company_id'])
+    person['company_id'] = session['company_id']
+    person_service.add(person, session['user_id'])
     return u'{} has been added'.format(person['name']), 200
 
 @app.route('/people/invite', methods=['POST'])
 @auth(['edit_people'])
 def people_invite():
     email = request.form.get("email")
-    person_service.invite(email, session['user_id'], session['company_id'])
+    person_service.invite(email, session['user_id'])
     return u'Invitation has been sent to {}'.format(email), 200
 
 #### Places ####

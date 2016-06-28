@@ -88,7 +88,7 @@ TEST_DATA = {
             "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
             "company": -1,
             'phone': '083-4554553',
-            "image": "a1.jpg"
+            "image": "img/profile/a1.jpg"
         },
         {
             "id": -2,
@@ -102,7 +102,7 @@ TEST_DATA = {
             "role_name": "Manager",
             "role_theme": "success",
             'phone': '083-4322123',
-            "image": "a2.jpg"
+            "image": "img/profile/a2.jpg"
         },
         {
             "id": -3,
@@ -116,7 +116,7 @@ TEST_DATA = {
             "role_name": "Manager",
             "role_theme": "success",
             'phone': '083-3676362',
-            "image": "a3.jpg"
+            "image": "img/profile/a3.jpg"
         },
         {
             "id": -4,
@@ -130,7 +130,7 @@ TEST_DATA = {
             "role_name": "Connector",
             "role_theme": "warning",
             'phone': '083-5512122',
-            "image": "a4.jpg"
+            "image": "img/profile/a4.jpg"
         },
         {
             "id": -5,
@@ -143,7 +143,7 @@ TEST_DATA = {
             "role": -3,
             "role_name": "Connector",
             "role_theme": "warning",
-            "image": "a5.jpg"
+            "image": "img/profile/a5.jpg"
         },
         {
             "id": -6,
@@ -168,7 +168,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "a7.jpg"
+            "image": "img/profile/a7.jpg"
         },
         {
             "id": -8,
@@ -181,7 +181,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "a8.jpg"
+            "image": "img/profile/a8.jpg"
         },
         {
             "id": -9,
@@ -194,7 +194,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "1.png"
+            "image": "img/profile/1.png"
         },
         {
             "id": -10,
@@ -207,7 +207,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "2.png"
+            "image": "img/profile/2.png"
         },
         {
             "id": -11,
@@ -220,7 +220,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "3.png"
+            "image": "img/profile/3.png"
         },
         {
             "id": -12,
@@ -233,7 +233,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "4.png"
+            "image": "img/profile/4.png"
         },
         {
             "id": -13,
@@ -246,7 +246,7 @@ TEST_DATA = {
             "role": -2,
             "role_name": "Trainee",
             "role_theme": "danger",
-            "image": "5.png"
+            "image": "img/profile/5.png"
         }
     ],
     'Company': [

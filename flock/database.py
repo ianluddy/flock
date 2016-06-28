@@ -140,9 +140,9 @@ class Database():
         except DoesNotExist:
             abort(400, "Invitation expired. A new invitation will need to be sent. Please contact your Organisation's administrator.")
 
-    def update_password(self, email, password):
+    def update_password(self, user_id, password):
         validate_password(password)
-        Person.objects(email=email).update_one(
+        Person.objects(id=user_id).update_one(
             password=generate_password_hash(password)
         )
 
@@ -155,7 +155,7 @@ class Database():
         try:
             user = self.person_get(email=email)
             if check_password_hash(user.password, password):
-                return user.id, user.name, user.company.id, user.company.name, user.email
+                return user.id, user.company.id
             abort(400, 'Password is incorrect :(')
         except DoesNotExist:
             abort(400, 'Email address not registered :(')
@@ -175,37 +175,33 @@ class Database():
     def person_delete(self, person_id):
         Person.objects(id=person_id).delete()
 
-    def person_update(self, person):
-        if 'role' in person:
-            role = Role.objects(id=person['role']).get()
-            Person.objects(id=int(person['id'])).update_one(
+    def person_update(self, update):
+
+        if 'role' in update:
+            role = Role.objects(id=update['role']).get()
+            Person.objects(id=int(update['id'])).update_one(
                 role=role,
                 role_name=role.name,
                 role_theme=role.theme,
-                email=person['email'],
-                name=person['name'],
-                phone=person['phone'],
-            )
-        else:
-            Person.objects(id=int(person['id'])).update_one(
-                email=person['email'],
-                name=person['name'],
-                phone=person['phone'],
             )
 
-        if 'image' in person:
-            Person.objects(id=int(person['id'])).update_one(
-                image=person['image'],
-            )
+        person = Person.objects(id=int(update['id']))
+        person.update_one(**update)
+        return person.first().name
 
     def person_add(self, new_person):
 
+        # Role
         role = Role.objects(id=new_person['role']).get()
         new_person['role'] = role
         new_person['role_name'] = role.name
         new_person['role_theme'] = role.theme
 
-        # email can either be a unique email address or can not exist
+        # Company
+        new_person['company'] = Company.objects(id=new_person['company_id']).get()
+        del new_person['company_id']
+
+        # Email can either be a unique email address or can not exist
         if not new_person['email']:
             del new_person['email']
         else:

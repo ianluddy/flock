@@ -237,7 +237,6 @@ function load_account(){
             $('#account_image_progress .progress-bar').css('width', progress + '%');
         },
         error: function (e, data){
-            setTimeout(function(){ refresh_image() }, 1000);
             var message = e.responseText;
             if( message == undefined) {
                 message = "That file is too large. Try a smaller one";

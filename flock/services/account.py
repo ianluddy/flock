@@ -15,11 +15,7 @@ def upload_image(user_id, input_file):
     if extension not in PROFILE_IMAGE_TYPES:
         abort(400, 'File type not supported. Try a JPG or PNG instead.')
 
-    filename = "{}.{}".format(random_uuid(), extension)
-    input_file.save(os.path.join("static/" + PROFILE_IMAGE_DIR, filename))
+    filename = "{}/{}.{}".format(PROFILE_IMAGE_DIR, random_uuid(), extension)
+    input_file.save(os.path.join("static/", filename))
 
-    # TODO - this better
-    user = person.get(user_id=user_id).to_dict()
-    user['image'] = filename
-    user['id'] = user_id
-    person.update(user)
+    person.update({'image': filename, 'id': user_id})

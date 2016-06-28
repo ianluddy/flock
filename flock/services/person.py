@@ -3,8 +3,8 @@ from flask import abort
 from flock.services import mail, company
 from flock.services.notification import notify
 
-def invite(email, sender_id, company_id):
-    recipient = db.person_get(company_id=company_id, email=email)
+def invite(email, sender_id):
+    recipient = db.person_get(email=email)
 
     if not email or not recipient:
         abort(400, 'No email address registered for this Person, please add one to send an invitation')
@@ -13,24 +13,24 @@ def invite(email, sender_id, company_id):
 
     mail.invite(
         email,
-        db.person_get(company_id, user_id=sender_id).name,
+        db.person_get(user_id=sender_id).name,
         token
     )
 
-def add(new_person, user_id, company_id):
+def add(new_person, user_id):
     if new_person['invite'] and not new_person.get('email'):
         abort(400, 'Please specify an email address to send the invitation to, or uncheck the invitation box.')
 
     db.person_add(new_person)
 
     if new_person['invite']:
-        invite(new_person['email'], user_id, company_id)
+        invite(new_person['email'], user_id)
 
     notify(u'{} added a new Person - <b>%s</b>' % new_person['name'], action='add', target='person')
 
 def update(person):
-    db.person_update(person)
-    notify(u'{} updated details for <b>%s</b>' % person['name'], action='edit', target='person')
+    name = db.person_update(person)
+    notify(u'{} updated details for <b>%s</b>' % name, action='edit', target='person')
 
 def delete(person_id, user_id, company_id):
     if person_id == user_id:

@@ -1,6 +1,6 @@
 from mongoengine import Document, SequenceField, IntField, StringField, BooleanField, ReferenceField, ListField, DateTimeField
 from mongoengine import PULL, DENY, NULLIFY
-from constants import PERMISSIONS
+from constants import PROFILE_IMAGE_DIR
 from datetime import datetime
 from utils import account_token
 
@@ -62,7 +62,7 @@ class Person(Document, Base):
     invite = BooleanField(default=True)
     active = BooleanField(default=False)
     password = StringField(min_length=8)
-    image = StringField(default="placeholder.png")
+    image = StringField(default="{}{}".format(PROFILE_IMAGE_DIR, "placeholder.png"))
     company = ReferenceField('Company', nullable=False)
     role = ReferenceField('Role', nullable=False, reverse_delete_rule=DENY)
     role_name = StringField(nullable=False)
@@ -79,7 +79,6 @@ class Person(Document, Base):
 
     def to_dict(self):
         output = self.to_mongo()
-        output["image"] = "img/profile/{}".format(self.image) if self.image else None
         if 'password' in output:
             del output['password']
         return output
