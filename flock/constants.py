@@ -147,8 +147,8 @@ TEST_DATA = {
         },
         {
             "id": -6,
-            "email": "erskine@tryflock.com",
-            "name": "Erskine Abrams",
+            "email": "jane@tryflock.com",
+            "name": "Jane Abrams",
             "invite": True,
             "active": False,
             "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
@@ -185,8 +185,8 @@ TEST_DATA = {
         },
         {
             "id": -9,
-            "email": "jaylin@tryflock.com",
-            "name": "Jaylin Adcock",
+            "email": "harry@tryflock.com",
+            "name": "Harry Andrews",
             "invite": True,
             "active": True,
             "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",
@@ -198,8 +198,8 @@ TEST_DATA = {
         },
         {
             "id": -10,
-            "email": "gyles@tryflock.com",
-            "name": "Gyles Traviss",
+            "email": "garry@tryflock.com",
+            "name": "Garry Doherty",
             "invite": True,
             "active": True,
             "password": "pbkdf2:sha1:1000$Ejjo3uqM$04d48dc71ce6460f6454f403ef6e331ce7acfad3",

@@ -178,7 +178,8 @@
                         {{#each notifications}}
                             <div class="feed-element {{ action }}">
                                 <a href="profile.html" class="pull-left feed-icon">
-                                    <!--<img alt="image" class="img-circle" src="img/profile.jpg">-->
+                                    <img alt="image" class="img-circle" src="{{image}}">
+                                    <!--
                                     {{#equal target 'person'}}
                                         <i class="fa fa-user"></i>
                                     {{/equal}}
@@ -194,6 +195,7 @@
                                     {{#equal target 'message'}}
                                         <i class="fa fa-bullhorn"></i>
                                     {{/equal}}
+                                    -->
                                 </a>
                                 <div class="media-body ">
                                     <small class="pull-right">{{relativeTime stamp}}</small>

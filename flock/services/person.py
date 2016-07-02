@@ -26,11 +26,11 @@ def add(new_person, user_id):
     if new_person['invite']:
         invite(new_person['email'], user_id)
 
-    notify(u'{} added a new Person - <b>%s</b>' % new_person['name'], action='add', target='person')
+    notify(u'{} added a new Person - <strong>%s</strong>' % new_person['name'], action='add', target='person')
 
 def update(person):
     name = db.person_update(person)
-    notify(u'{} updated details for <b>%s</b>' % name, action='edit', target='person')
+    notify(u'{} updated details for <strong>%s</strong>' % name, action='edit', target='person')
 
 def delete(person_id, user_id, company_id):
     if person_id == user_id:
@@ -39,7 +39,7 @@ def delete(person_id, user_id, company_id):
         abort(400, "You can't delete the company's owner")
     user_name = db.person_get(user_id=person_id).name
     db.person_delete(person_id)
-    notify(u'{} deleted a Person - <b>%s</b>' % user_name, action='delete', target='person')
+    notify(u'{} deleted a Person - <strong>%s</strong>' % user_name, action='delete', target='person')
 
 def get(company_id=None, user_id=None, role_id=None, email=None, search=None, sort_by=None, sort_dir=None, limit=None,
         offset=None):

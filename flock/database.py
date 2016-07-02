@@ -84,23 +84,28 @@ class Database():
 
     def create_random_notifications(self):
         notifications = [
-            u'<b>{}</b> created a new Event',
-            u'<b>{}</b> edited an Event',
-            u'<b>{}</b> removed an Event',
-            u'<b>{}</b> added a new Person',
-            u'<b>{}</b> added a new Place',
+            (u'<b>{}</b> created a new Event - <strong>Greeting Clients</strong>', u'add'),
+            (u'<b>{}</b> edited an Event - <strong>Daily Stand Up</strong>', u'edit'),
+            (u'<b>{}</b> removed an Event - <strong>AGM</strong>', u'delete'),
+            (u'<b>{}</b> added a new Person - <strong>Joe Bloggs</strong>', u'add'),
+            (u'<b>{}</b> added a new Place - <strong>Head Office</strong>', u'add')
         ]
         id = -1
         for i in range(-7, 0):
             for j in range(25):
                 id -= 1
                 owner = Person.objects.get(id=randint(-10, -1))
+                action = choice(notifications)
+                message = action[0].format(owner.name)
+                type = action[1]
                 Notification(
                     id=id,
                     stamp=(datetime.utcnow() + timedelta(days=i)).replace(hour=randint(6, 18), minute=0),
                     company=-1,
                     owner=owner.id,
-                    body=choice(notifications).format(owner.name)
+                    body=message,
+                    action=type,
+                    image=owner.image
                 ).save()
 
     #### User Account ####
@@ -184,6 +189,7 @@ class Database():
                 role_name=role.name,
                 role_theme=role.theme,
             )
+            del update['role']
 
         person = Person.objects(id=int(update['id']))
         person.update_one(**update)
@@ -443,12 +449,13 @@ class Database():
 
         return results
 
-    def notification_add(self, company_id, owner_id, body, action, target, message=None):
+    def notification_add(self, company_id, owner_id, image, body, action, target, message=None):
         Notification(
             stamp=datetime.now(),
             company=company_id,
             owner=owner_id,
             body=body,
+            image=image,
             action=action,
             target=target,
             message=message,

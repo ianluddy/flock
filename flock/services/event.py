@@ -20,16 +20,16 @@ def get(company_id, event_id=None, start=None, end=None, hide_expired=False, lim
 def add(event):
     _validate_event(event)
     db.event_add(event)
-    notify(u'{} added a new Event - <b>%s</b>' % event['title'], action='add', target='event')
+    notify(u'{} added a new Event - <strong>%s</strong>' % event['title'], action='add', target='event')
 
 def update(event):
     _validate_event(event)
     db.event_update(event)
-    notify(u'{} updated an Event - <b>%s</b>' % event['title'], action='edit', target='event')
+    notify(u'{} updated an Event - <strong>%s</strong>' % event['title'], action='edit', target='event')
 
 def delete(event):
     db.event_delete(event['id'])
-    notify(u'{} deleted an Event - <b>%s</b>' % event['title'], action='delete', target='event')
+    notify(u'{} deleted an Event - <strong>%s</strong>' % event['title'], action='delete', target='event')
 
 def _validate_event(event):
     if event['start'] > event['end']:

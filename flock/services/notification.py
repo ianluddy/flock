@@ -16,5 +16,5 @@ def notify(body, message=None, mail_function=None, mail_args=None, action=None, 
 def _notify(company_id, owner_id, body, message, action, target):
     user = db.person_get(user_id=owner_id)
     body = body.format(u'<b>{}</b>'.format(user.name))
-    db.notification_add(company_id, owner_id, body, action, target, message=message)
+    db.notification_add(company_id, owner_id, user.image, body, action, target, message=message)
 

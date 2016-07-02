@@ -8600,6 +8600,21 @@ body.md-skin {
     margin-top: 1px;
     margin-right: 2px;
 }
+.feed-activity-list .feed-element .pull-right{
+    padding-left: 3px;
+}
+.feed-activity-list .feed-element strong{
+    font-weight: normal;
+}
+.feed-activity-list .feed-element.delete .media-body strong{
+    color: #ed5565;
+}
+.feed-activity-list .feed-element.add .media-body strong{
+    color: #1ab394;
+}
+.feed-activity-list .feed-element.edit .media-body strong{
+    color: #f8ac59;
+}
 .feed-activity-list .feed-element.delete .feed-icon i.fa{
     color: #ed5565;
 }

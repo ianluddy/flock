@@ -153,6 +153,7 @@ class Notification(Document, Base):
     id = SequenceField(primary_key=True)
     stamp = DateTimeField(default=datetime.now)
     body = StringField()
+    image = StringField()
     message = StringField(nullable=True)
     action = StringField(nullable=False, default='action')
     target = StringField(nullable=False, default='message')
