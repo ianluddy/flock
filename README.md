@@ -11,6 +11,10 @@ Currently under construction.
 - NGinx
 - Gunicorn
 
+###
+
+Renewing SSL Certs - ./letsencrypt-auto renew + sudo service nginx reload
+
 ### Ubuntu Install Notes
 
 #### Libraries
