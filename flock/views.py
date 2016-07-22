@@ -256,7 +256,7 @@ def places():
 
 @app.route('/places', methods=['POST'])
 @auth(['edit_places'])
-@parse_args(string_args=['name', 'email', 'phone', 'address'], int_args=['id'])
+@parse_args(string_args=['name', 'email', 'phone', 'address'])
 def places_add(place):
     place['company'] = session['company_id']
     place_service.add(place)
