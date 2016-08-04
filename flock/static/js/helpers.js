@@ -184,3 +184,7 @@ function valid8(validator){
     }
     return true;
 }
+
+function capitalise(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
