@@ -337,5 +337,55 @@ TEST_DATA = {
             'phone': '07-5551234',
             'company': -1
         },
+    ],
+    'EmailRule': [
+        {
+            'id': -1,
+            'added': True,
+            'deleted': False,
+            'edited': False,
+            'roles': [-1, -2, -3],
+            'object': 'event',
+            'all': True,
+            'company': -1
+        },
+        {
+            'id': -2,
+            'added': True,
+            'deleted': True,
+            'edited': True,
+            'roles': [-1, -2],
+            'object': 'person',
+            'company': -1
+        },
+        {
+            'id': -3,
+            'added': True,
+            'deleted': True,
+            'edited': True,
+            'roles': [],
+            'object': 'place',
+            'company': -1
+        },
+        {
+            'id': -4,
+            'added': True,
+            'deleted': False,
+            'edited': True,
+            'roles': [],
+            'object': 'place',
+            'company': -1,
+            'enabled': False
+        },
+        {
+            'id': -5,
+            'added': True,
+            'deleted': False,
+            'edited': True,
+            'roles': [-1, -2, -3, -4, -5, -6],
+            'object': 'place',
+            'company': -1,
+            'enabled': False
+        }
     ]
 }

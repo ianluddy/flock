@@ -2,7 +2,8 @@ from mongoengine import Document, SequenceField, IntField, StringField, BooleanF
 from mongoengine import PULL, DENY, NULLIFY
 from constants import PROFILE_IMAGE_DIR
 from datetime import datetime
-from utils import account_token
+from utils import account_token, capitalise, random_uuid
+
 
 # TODO - add indexes
 
@@ -164,3 +165,31 @@ class Notification(Document, Base):
         output = self.to_mongo()
         output['stamp'] = str(output['stamp'])
         return output
+
+class EmailRule(Document, Base):
+    id = SequenceField(primary_key=True)
+    roles = ListField(ReferenceField('Role'))
+    added = BooleanField(default=False)
+    edited = BooleanField(default=False)
+    deleted = BooleanField(default=False)
+    company = ReferenceField('Company')
+    object = StringField()
+    all = BooleanField(default=False) # Eg. All Events or just relevant Events
+    enabled = BooleanField(default=True)
+
+    def to_dict(self):
+        output = self.to_mongo()
+        output['roles'] = sorted(
+            [{'name': role.name, 'theme': role.theme, 'id': role.id} for role in self.roles],
+            key=lambda x: x['name']
+        )
+        output['object'] = self.plural
+        return output
+
+    @property
+    def plural(self):
+        return {
+            "event": "Events",
+            "person": "People",
+            "place": "Places",
+        }[str(self.object)]

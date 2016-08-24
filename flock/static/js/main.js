@@ -5,6 +5,7 @@ var people, places, things;
 var people_tmpl, dashboard_tmpl, account_tmpl, planner_tmpl, events_tmpl, things_tmpl, places_tmpl, settings_tmpl;
 var notifications_tmpl, no_data_tmpl, no_data_table_tmpl, places_table_body_tmpl, people_type_table_tmpl;
 var people_table_body_tmpl, event_tmpl, upcoming_events_tmpl, single_select_tmpl, multi_select_tmpl, value_error_tmpl;
+var notification_rule_table_tmpl;
 
 $(document).ready(function () {
     page_main = $("#main");
@@ -49,6 +50,7 @@ function compile_templates(){
     places_table_body_tmpl = Handlebars.compile($("#places_table_body_tmpl").html());
     people_type_table_tmpl = Handlebars.compile($("#people_type_table_tmpl").html());
     people_table_body_tmpl = Handlebars.compile($("#people_table_body_tmpl").html());
+    notification_rule_table_tmpl = Handlebars.compile($("#notification_rule_table_tmpl").html());
     event_tmpl = Handlebars.compile($("#event_tmpl").html());
     notifications_tmpl = Handlebars.compile($("#notifications_tmpl").html());
     upcoming_events_tmpl = Handlebars.compile($("#upcoming_events_tmpl").html());
@@ -106,6 +108,11 @@ function sort_toggle(dom){
 }
 
 function load_components(){
+    $('.btn-choice-mult .btn').off('click');
+    $('.color-choice').off('click');
+    $('.label-color-choice').off('click');
+    $('.btn-choice-req .btn').off('click');
+
     $('.i-checks').iCheck({
         checkboxClass: 'icheckbox_square-green',
         radioClass: 'iradio_square-green',
@@ -116,6 +123,17 @@ function load_components(){
     $('.label-color-choice').first().click();
     $('.btn-choice .btn').on('click', function(){
         $(this).siblings().removeClass('btn-primary').addClass('btn-white').removeClass('selected');
+        if( $(this).hasClass('selected') ){
+            $(this).removeClass('btn-primary').addClass('btn-white').removeClass('selected');
+        }else{
+            $(this).addClass('btn-primary').removeClass('btn-white').addClass('selected');
+        }
+    });
+    $('.btn-choice-req .btn').on('click', function(){
+        $(this).siblings().removeClass('btn-primary').addClass('btn-white').removeClass('selected');
+        $(this).addClass('btn-primary').removeClass('btn-white').addClass('selected');
+    });
+    $('.btn-choice-mult .btn').on('click', function(){
         if( $(this).hasClass('selected') ){
             $(this).removeClass('btn-primary').addClass('btn-white').removeClass('selected');
         }else{
@@ -290,7 +308,7 @@ function load_planner(){
             'type': 'get',
             'notify': false,
             'success': function(input){
-                place_data = input.data
+                place_data = input.data;
                 add_handlers();
             }
         });
@@ -413,7 +431,7 @@ function load_planner(){
 
         $('#add_event_name').focus();
 
-        if( callback !== undefined)
+        if( callback !== undefined && typeof(callback) == "function" )
             callback();
     }
 
@@ -878,15 +896,176 @@ function load_places(){
 function load_settings(){
     $(page_main).html(settings_tmpl());
     load_settings_people();
-    load_components();
+    $("#settings_roles_tab").on("click", load_settings_people);
+    $("#settings_rules_tab").on("click", load_settings_notifications);
 }
 
-function load_notifications(){
-    $(page_main).html(notifications_tmpl());
-}
+function load_settings_notifications(){
+    var role_data;
+    var rule_id = "";
+    var roles = [];
+    var object = null;
+    var actions = [];
 
-function load_events(){
-    $(page_main).html(events_tmpl());
+    function draw_rules(input){
+        $('#notification_rule_table_holder').empty();
+        if( input.length == 0 ){
+            $('#notification_rule_table_holder').html(no_data_tmpl({
+                'caption': 'There are no Notification Rules configured. Add some now!'
+            }));
+        }
+        $('#notification_rule_table_holder').append(notification_rule_table_tmpl({'rules': input}));
+        $('#rule_table_body i.delete-btn').on('click', delete_rule);
+        $('#rule_table_body i.edit-btn').on('click', edit_rule);
+        add_handlers();
+    }
+
+    var save_rule_validation = [
+        {'elem': '#rule-action-picker', 'eval': function(element){
+            if( $('#rule-action-picker button.selected').length > 0 ){
+                return true;
+            }
+            return 'Required';
+        }},
+    ];
+    function save_rule(e){
+        e.preventDefault();
+
+        if( valid8(save_rule_validation)){
+            var args = get_args();
+            if ( rule_id.length > 0 ){
+                args.id = rule_id;
+                ajax_call({
+                    'url': 'email_rules',
+                    'data': args,
+                    'type': 'PUT',
+                    'success': load_rules
+                });
+            }else{
+                ajax_call({
+                    'url': 'email_rules',
+                    'data': args,
+                    'type': 'POST',
+                    'success': load_rules
+                });
+            }
+        }
+    }
+
+    function add_handlers(){
+        $('#modal_add_rule_btn').off('click');
+        $('#add_rule_btn').off('click');
+
+        $('#modal_add_rule_btn').on('click', save_rule);
+        $('#add_rule_btn').on('click', open_modal);
+
+    }
+
+    function open_modal(){
+        reset_form();
+        $('#add_rule_modal').modal('show');
+    }
+
+    function get_args(){
+        object = $('#rule-object-picker button.selected:first').attr('value');
+
+        actions = [];
+        $('#rule-action-picker button.selected').each(function(){
+            actions.push($(this).attr('value'));
+        });
+
+        return {
+            'roles': JSON.stringify(roles),
+            'actions': JSON.stringify(actions),
+            'object': object
+        };
+    }
+
+    function reset_form(){
+        $('#add_rule_rolepicker_wrapper').html(multi_select_tmpl({
+            'options': role_data,
+            'id': 'add_rule_peoplepicker',
+            'class': 'req-input',
+            'placeholder': 'select roles',
+            'tabindex': '1'
+        }));
+        $("#add_rule_peoplepicker").chosen();
+        $("#add_rule_peoplepicker").on('change', function(evt, params) {
+            if( params.selected != undefined )
+                roles.push(params.selected);
+            if( params.deselected != undefined )
+                roles.splice(roles.indexOf(params.deselected), 1);
+        });
+        $("#rule-action-picker button").removeClass("selected").removeClass("btn-primary").addClass("btn-white");
+        roles = [];
+        rule_id = "";
+        load_components();
+        $("#modal_add_rule_btn").text("Add");
+        $("#add_rule_modal .modal-title").text("Add Rule");
+    }
+
+    function delete_rule(){
+        ajax_call({
+            'url': 'email_rules',
+            'type': 'delete',
+            'data': {
+                'id': $(this).attr('rule_id')
+             },
+            'success': load_rules
+        });
+    }
+
+    function edit_rule(){
+        reset_form();
+        rule_id = $(this).attr("rule_id");
+        $('#add_rule_modal').modal('show');
+        $("#modal_add_rule_btn").text("Update");
+        $("#add_rule_modal .modal-title").text("Update Rule");
+
+        var rule_dom = $("#rule_" + $(this).attr('rule_id'));
+
+        $("#rule-object-picker button[pretty_value='" + $(rule_dom).attr('rule_object') + "']").click();
+
+        roles = [];
+        $(rule_dom).find(".person_role").each(function(){
+            roles.push($(this).attr("role_id"));
+        });
+
+        $('#add_rule_rolepicker_wrapper select').val(roles).trigger('chosen:updated');
+
+        if( $(rule_dom).find('.rule-added').length )
+            $("#rule-action-picker button[value=added]").click();
+
+        if( $(rule_dom).find('.rule-edited').length )
+            $("#rule-action-picker button[value=edited]").click();
+
+        if( $(rule_dom).find('.rule-deleted').length )
+            $("#rule-action-picker button[value=deleted]").click();
+
+    }
+
+    function load_rules(){
+        $('#add_rule_modal').modal('hide');
+        reset_form();
+        ajax_call({
+            'url': 'email_rules',
+            'notify': false,
+            'success': draw_rules
+        });
+    }
+
+    function load_data(){
+        ajax_call({
+            'url': '/roles',
+            'type': 'get',
+            'notify': false,
+            'success': function(input){
+                role_data = input;
+            }
+        });
+    }
+    load_data();
+    load_rules();
 }
 
 function load_settings_people(){
@@ -894,6 +1073,7 @@ function load_settings_people(){
     function reset_form(){
         reset_components();
         $("#modal_add_role_btn").text("Add");
+        $('#add_role_modal .modal-title').text("Add Role");
         $("#add_role_name").val("");
         $('#role_colour span').first().click();
         $("#add_role_form").attr('role_id', '');
@@ -905,6 +1085,7 @@ function load_settings_people(){
         reset_form();
         add_handlers();
         $('#add_role_modal').modal('show');
+        $('#add_role_modal .modal-title').text("Update Role");
         $("#modal_add_role_btn").text("Update");
         $("#add_role_form").attr('role_id', $(this).attr('role_id'));
         $("#add_role_name").val($(this).attr('name'));

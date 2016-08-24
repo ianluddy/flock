@@ -8,6 +8,8 @@ from services import account as account_service
 from services import event as event_service
 from services import person as person_service
 from services import place as place_service
+from services import mail as mail_service
+from services import mail_notification as mail_notification_service
 from flock.app import db_wrapper
 import json
 from datetime import datetime
@@ -364,3 +366,33 @@ def notifications():
         sort_by=request.args.get('sort_by'),
         sort_dir=request.args.get('sort_dir')
     ))
+
+#### Email ####
+
+@app.route('/email_rules', methods=['GET'])
+@auth(['edit_system_settings'])
+def email_rules():
+    return json_response(mail_notification_service.get(
+        company_id=session['company_id']
+    ))
+
+@app.route('/email_rules', methods=['DELETE'])
+@auth(['edit_system_settings'])
+@parse_args(string_args=['id'])
+def email_rules_delete(rule):
+    mail_notification_service.delete(rule['id'])
+    return u'Rule Deleted', 200
+
+@app.route('/email_rules', methods=['POST'])
+@auth(['edit_system_settings'])
+@parse_args(string_args=['object'], json_args=['roles', 'actions'])
+def email_rules_post(rule):
+    mail_notification_service.add(session['company_id'], rule)
+    return u'Rule Added', 200
+
+@app.route('/email_rules', methods=['PUT'])
+@auth(['edit_system_settings'])
+@parse_args(int_args=['id'], string_args=['object'], json_args=['roles', 'actions'])
+def email_rules_put(rule):
+    mail_notification_service.update(rule)
+    return u'Rule Updated', 200

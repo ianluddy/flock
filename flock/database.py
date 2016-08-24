@@ -41,6 +41,7 @@ class Database():
         Event.drop_collection()
         Company.drop_collection()
         Notification.drop_collection()
+        EmailRule.drop_collection()
 
     def add_test_data(self):
         for collection_name, data in TEST_DATA.iteritems():
@@ -460,3 +461,36 @@ class Database():
             target=target,
             message=message,
         ).save()
+
+    #### Email Rules ####
+
+    def mail_notification_get(self, company_id):
+        return EmailRule.objects(company=company_id)
+
+    def mail_notification_add(self, company_id, rule):
+        EmailRule(
+            roles=[int(role_id) for role_id in rule['roles']],
+            added='added' in rule['actions'],
+            edited='edited' in rule['actions'],
+            deleted='deleted' in rule['actions'],
+            company=company_id,
+            object=rule['object']
+        ).save()
+
+    def mail_notification_update(self, rule):
+        EmailRule.objects(id=rule["id"]).update_one(
+            roles=[
+                Role.objects.get(id=int(role_id)) for role_id in rule['roles'] if role_id
+            ],
+            added='added' in rule['actions'],
+            edited='edited' in rule['actions'],
+            deleted='deleted' in rule['actions'],
+            object=rule['object']
+        )
+
+    def mail_notification_toggle(self, rule_id, enabled):
+        return EmailRule.objects(id=rule_id).update_one(enabled=enabled)
+
+    def mail_notification_delete(self, rule_id):
+        EmailRule.objects(id=rule_id).delete()
+

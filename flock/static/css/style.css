@@ -8284,7 +8284,7 @@ body.md-skin {
     margin-bottom: 25px;
     font-size: 1.4em;
 }
-.no_data{
+.no_data, .centred{
     text-align: center;
     font-size: 1.1em;
     opacity: 0.8;
@@ -8361,12 +8361,12 @@ body.md-skin {
     color: #fff !important;
     background-color: #1ab394 !important;
 }
-#main .tabs li, #main .tabs li a{
+#main .tabs > ul > li, #main .tabs > ul > li a{
     border: none !important;
     margin: 0px !important;
     border-radius: 0px !important;
 }
-#main .tabs li a{
+#main .tabs > ul > li a{
     text-align: center;
     background-color: #eee;
     padding: 9px 20px 9px 20px;
@@ -8538,6 +8538,9 @@ body.md-skin {
 }
 #people_type_row_new button{
     margin-top: 20px;
+    width: 200px;
+}
+.big-button{
     width: 200px;
 }
 .color-choice{
@@ -8808,4 +8811,17 @@ a.chosen-single, .chosen-choices{
 }
 #account_image_progress{
 
+}
+.rule .fa-check-square-o, .rule .fa-square-o, .rule .fa-power-off {
+    font-size: 1.3em;
+}
+.rule .fa-power-off{
+    cursor: pointer;
+    color: #dedede;
+}
+.rule .fa-power-off.enabled{
+    color: #1ab394;
+}
+.faded {
+    opacity: 0.3;
 }

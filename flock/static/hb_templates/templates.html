@@ -421,9 +421,9 @@
             <div class="tabs-container">
                 <div class="tabs">
                     <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#setting-tab-1" aria-expanded="true">Roles & Permissions</a></li>
-                        <li class=""><a data-toggle="tab" href="#setting-tab-2" aria-expanded="false">Notifications</a></li>
-                        <li class=""><a data-toggle="tab" href="#setting-tab-3" aria-expanded="false">General</a></li>
+                        <li class="active"><a id="settings_roles_tab" data-toggle="tab" href="#setting-tab-1" aria-expanded="true">Roles & Permissions</a></li>
+                        <li class=""><a id="settings_rules_tab" data-toggle="tab" href="#setting-tab-2" aria-expanded="false">Email Notifications</a></li>
+                        <!--<li class=""><a id="settings_general_tab" data-toggle="tab" href="#setting-tab-3" aria-expanded="false">General</a></li>-->
                     </ul>
                     <div class="tab-content ">
                         <div id="setting-tab-1" class="tab-pane active">
@@ -434,14 +434,17 @@
                         </div>
                         <div id="setting-tab-2" class="tab-pane">
                             <div class="panel-body">
-                                <strong>Coming Soon</strong>
+                                <div class="spacer"></div>
+                                <div id="notification_rule_table_holder"></div>
                             </div>
                         </div>
+                        <!--
                         <div id="setting-tab-3" class="tab-pane">
                             <div class="panel-body">
                                 <strong>Coming Soon</strong>
                             </div>
                         </div>
+                        -->
                     </div>
                 </div>
             </div>
@@ -460,13 +463,11 @@
                 {{/perm}}
             </div>
 
-            <div class="col-md-4">
-            </div>
+            <div class="col-md-4"> </div>
 
             <div class="col-md-5">
                 <input id="people_table_search" type="text" placeholder="search" class="form-control" required="">
             </div>
-
         </div>
         <div class="col-lg-12">
             <div class="paginator-wrapper">
@@ -486,7 +487,9 @@
                     <th>Phone <i sorter="phone" class="table-sorter fa fa-sort"></i></th>
                     <th>Type <i sorter="role_name" class="table-sorter fa fa-sort"></i></th>
                     <th>Status <i sorter="invite" class="table-sorter fa fa-sort"></i></th>
-                    <th></th>
+                    {{#perm 'edit_people'}}
+                        <th></th>
+                    {{/perm}}
                 </tr>
                 </thead>
                 <tbody id="people_table_body">
@@ -542,13 +545,13 @@
             <td class="place_address">{{#if address}} {{address}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
             <td class="place_mail">{{#if email}} {{email}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
             <td class="place_phone">{{#if phone}} {{phone}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
-            <td>
-                <!--<i place_id="{{_id}}" title="Show on Map" class="map-btn table-btn fa fa-map-marker"></i>-->
-                {{#perm 'edit_places'}}
+            {{#perm 'edit_places'}}
+                <td>
+                    <!--<i place_id="{{_id}}" title="Show on Map" class="map-btn table-btn fa fa-map-marker"></i>-->
                     <i place_id="{{_id}}" name="{{name}}" title="Edit Place" class="edit-btn table-btn fa fa-edit" data-toggle="modal" data-target="#add_places_modal"></i>
                     <i place_id="{{_id}}" name="{{name}}" title="Delete Place" class="delete-btn table-btn fa fa-trash-o"></i>
-                {{/perm}}
-            </td>
+                </td>
+            {{/perm}}
         </tr>
     {{/each}}
 </script>
@@ -579,14 +582,118 @@
                     {{/perm}}
                 {{/if}}
             </td>
-            <td>
-                {{#perm 'edit_people'}}
+            {{#perm 'edit_people'}}
+                <td>
                     <i person_id="{{_id}}" title="Edit Person" class="edit-btn table-btn fa fa-edit" data-toggle="modal" data-target="#add_people_modal"></i>
                     <i person_id="{{_id}}" name="{{name}}" title="Delete Person" class="delete-btn table-btn fa fa-trash-o"></i>
-                {{/perm}}
-            </td>
+                </td>
+            {{/perm}}
         </tr>
     {{/each}}
+</script>
+
+<script id="notification_rule_table_tmpl" type="text/x-handlebars-template">
+    {{#if rules.length}}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Email These Users</th>
+                <th>When These Things</th>
+                <th>Are Added</th>
+                <th>Are Edited</th>
+                <th>Are Deleted</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="rule_table_body">
+                {{#each rules}}
+                    <tr id="rule_{{ _id }}" class="rule" rule_object="{{ object }}">
+                        <td>
+                            {{#if roles}}
+                                {{#each roles}}
+                                    <span role_id="{{id}}" role_theme="{{ theme }}" class="person_role label label-{{ theme }}">{{ name }}s</span>
+                                {{/each}}
+                            {{else}}
+                                <span role_theme="default" class="person_role label label-default">All Users</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{object}}
+                        </td>
+                        <td>
+                            {{#if added}}<i class="fa fa-check rule-added"></i> {{else}} - {{/if}}
+                        </td>
+                        <td>
+                            {{#if edited}}<i class="fa fa-check rule-edited"></i> {{else}} - {{/if}}
+                        </td>
+                        <td>
+                            {{#if deleted}}<i class="fa fa-check rule-deleted"></i> {{else}} - {{/if}}
+                        </td>
+                        <td>
+                            <i title="Edit Rule" rule_id="{{_id}}" class="edit-btn table-btn fa fa-edit"></i>
+                            <i title="Delete Rule" rule_id="{{_id}}" class="delete-btn table-btn fa fa-trash-o"></i>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{/if}}
+    <div class="centred">
+        <button id="add_rule_btn" type="button" class="btn btn-primary big-button">
+            Add New
+        </button>
+    </div>
+
+    <div class="modal inmodal" id="add_rule_modal" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h3 class="modal-title">Add Rule</h3>
+                </div>
+                <div class="modal-body">
+                    <form id="add_rule_form" method="get" class="form-horizontal" data-toggle="validator" role_id="">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Notify These Users</label>
+                            <div class="col-sm-8">
+                                <div id="add_rule_rolepicker_wrapper" class="col-sm-8 req-input" style="padding-left: 0px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">When These</label>
+                            <div class="col-sm-8">
+                                <div id="rule-object-picker" class="btn-group btn-choice-req">
+                                    <button class="btn btn-primary selected" type="button" pretty_value="Events" value="event">Events</button>
+                                    <button class="btn btn-white" type="button" pretty_value="People" value="person">People</button>
+                                    <button class="btn btn-white" type="button" pretty_value="Places" value="place">Places</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Are</label>
+                            <div class="col-sm-8">
+                                <div id="rule-action-picker" class="btn-group btn-choice-mult">
+                                    <button class="btn btn-primary selected" type="button" value="added">Added</button>
+                                    <button class="btn btn-white" type="button" value="edited">Edited</button>
+                                    <button class="btn btn-white" type="button" value="deleted">Deleted</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group modal-footer-buttons">
+                            <button id="modal_add_rule_btn" type="submit" class="btn btn-primary">Add</button>
+                            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </script>
 
 <script id="people_type_table_tmpl" type="text/x-handlebars-template">
@@ -766,7 +873,7 @@
 </script>
 
 <script id="multi_select_tmpl" type="text/x-handlebars-template">
-    <select id="{{ id }}" tabindex="{{ tabindex }}" data-placeholder="{{ placeholder }}" class="chosen-select" multiple style="width: 350px;">
+    <select id="{{ id }}" tabindex="{{ tabindex }}" data-placeholder="{{ placeholder }}" class="chosen-select {{ class }}" multiple style="width: 350px;">
         {{#each options}}
             <option value="{{ _id }}">{{ name }}</option>
         {{/each}}
