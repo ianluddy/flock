@@ -4,6 +4,7 @@ from werkzeug.exceptions import abort
 import models as mo
 from constants import *
 from models import *
+import rollbar
 from utils import random_password, validate_password, evaluate_permissions
 from mongoengine import NotUniqueError, DoesNotExist
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -125,6 +126,7 @@ class Database():
         try:
             new_company.owner = owner
             new_company.save()
+            rollbar.report_message(u"New company added - {}".format(new_company.name), 'info')
         except NotUniqueError:
             abort(400, 'Company name already in use :(')
 
@@ -143,6 +145,7 @@ class Database():
                 password=generate_password_hash(password),
                 active=True
             )
+            rollbar.report_message(u"User account activated - {}".format(name), 'info')
         except DoesNotExist:
             abort(400, "Invitation expired. A new invitation will need to be sent. Please contact your Organisation's administrator.")
 
@@ -215,6 +218,7 @@ class Database():
             new_person['email'] = new_person['email'].lower()
 
         try:
+            rollbar.report_message(u"User account created - {}".format(new_person['email']), 'info')
             return Person(**new_person).save()
         except NotUniqueError:
             abort(400, 'That email address is already in use.')
