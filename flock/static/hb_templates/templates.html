@@ -542,9 +542,9 @@
     {{#each places}}
         <tr class="place_row" place_id="{{ _id }}">
             <td class="place_name">{{name}}</td>
-            <td class="place_address">{{#if address}} {{address}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
-            <td class="place_mail">{{#if email}} {{email}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
-            <td class="place_phone">{{#if phone}} {{phone}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
+            <td class="place_address">{{#if address}} {{address}} {{else}} <span class="placeholder-text">-</span> {{/if}}</td>
+            <td class="place_mail">{{#if email}} {{email}} {{else}} <span class="placeholder-text">-</span> {{/if}}</td>
+            <td class="place_phone">{{#if phone}} {{phone}} {{else}} <span class="placeholder-text">-</span> {{/if}}</td>
             {{#perm 'edit_places'}}
                 <td>
                     <!--<i place_id="{{_id}}" title="Show on Map" class="map-btn table-btn fa fa-map-marker"></i>-->
@@ -562,8 +562,8 @@
             <!--<td>{{> checkbox_part}}</td>-->
             <td><img alt="image" class="img-circle" src="{{image}}"></td>
             <td class="person_name">{{name}}</td>
-            <td class="person_email">{{#if email}} {{email}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
-            <td class="person_phone">{{#if phone}} {{phone}} {{else}} <span class="placeholder-text">Unknown</span> {{/if}}</td>
+            <td class="person_email">{{#if email}} {{email}} {{else}} <span class="placeholder-text">-</span> {{/if}}</td>
+            <td class="person_phone">{{#if phone}} {{phone}} {{else}} <span class="placeholder-text">-</span> {{/if}}</td>
             <td><span role_theme="{{role_theme}}" class="person_role label label-{{role_theme}}">{{role_name}}</span></td>
             <td>
                 {{#if invite}}
