@@ -129,7 +129,7 @@ class Company(Document, Base):
                  'edit_events', 'edit_people', 'edit_places', 'edit_system_settings'
              ]
         ).save()
-        Role(name='Regular User', theme='primary', rank=18, company=self,
+        regular_user = Role(name='Regular User', theme='primary', rank=18, company=self,
              permissions=[
                  'edit_events', 'edit_people', 'edit_places'
              ]
@@ -147,6 +147,40 @@ class Company(Document, Base):
             role_theme=admin.theme,
             active=True
         )
+
+        # Create default Notification Rules
+        EmailRule(
+            added=True,
+            deleted=True,
+            edited=True,
+            object='person',
+            company=self,
+            roles=[
+                admin
+            ]
+        ).save()
+
+        EmailRule(
+            added=True,
+            deleted=True,
+            edited=True,
+            object='place',
+            company=self,
+            roles=[
+                admin
+            ]
+        ).save()
+
+        EmailRule(
+            added=True,
+            deleted=True,
+            edited=True,
+            object='event',
+            company=self,
+            roles=[
+                regular_user
+            ]
+        ).save()
 
         return super(Company, self).save(*args, **kwargs)
 
