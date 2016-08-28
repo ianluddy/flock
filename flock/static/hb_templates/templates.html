@@ -163,7 +163,7 @@
                 </div>
                 <div class="col-xs-8 text-right">
                     <h3>
-                        Notifications will appear here
+                        Activity stream will appear here
                     </h3>
                 </div>
             </div>
@@ -224,7 +224,7 @@
                 <h3 class="dashboard-header dashboard-header-events"> Your Upcoming Events </h3>
             </div>
             <div id="notifications-wrapper" class="col-lg-4">
-                <h3 class="dashboard-header"> Notifications </h3>
+                <h3 class="dashboard-header"> Activity </h3>
             </div>
         </div>
     </div>
@@ -640,7 +640,7 @@
     {{/if}}
     <div class="centred">
         <button id="add_rule_btn" type="button" class="btn btn-primary big-button">
-            Add New
+            Add Rule
         </button>
     </div>
 
@@ -716,7 +716,7 @@
             <tr id="people_type_row_new">
                 <td colspan="6">
                     <button id="add_role_btn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_role_modal">
-                        Add New
+                        Add Role
                     </button>
                 </td>
             </tr>
@@ -846,7 +846,7 @@
             {{/in_array}}
         </td>
         <td>
-            {{#in_array 'edit_system_settings' permissions}} Edit {{else}} - {{/in_array}}
+            {{#in_array 'edit_system_settings' permissions}} View + Edit {{else}} - {{/in_array}}
         </td>
         <td>
             <i role_id="{{_id}}" name="{{name}}" theme="{{theme}}" permissions="{{permissions}}" title="Edit Role" class="edit-btn table-btn fa fa-edit"></i>
@@ -865,7 +865,7 @@
 
 <script id="single_select_tmpl" type="text/x-handlebars-template">
     <select id="{{ id }}" tabindex="{{ tabindex }}" data-placeholder="{{ placeholder }}" class="chosen-select req-input" style="width: 350px;">
-        <option class="chosen-placeholder" value="">{{ placeholder }}</option>
+        <option value=""></option>
         {{#each options}}
             <option value="{{ _id }}">{{ name }}</option>
         {{/each}}
@@ -874,6 +874,7 @@
 
 <script id="multi_select_tmpl" type="text/x-handlebars-template">
     <select id="{{ id }}" tabindex="{{ tabindex }}" data-placeholder="{{ placeholder }}" class="chosen-select {{ class }}" multiple style="width: 350px;">
+        <option value=""></option>
         {{#each options}}
             <option value="{{ _id }}">{{ name }}</option>
         {{/each}}

@@ -409,7 +409,7 @@ function load_planner(){
         $('#add_event_placepicker_wrapper').html(single_select_tmpl({
             'options': place_data,
             'id': 'add_event_placepicker',
-            'placeholder': 'Choose a Place',
+            'placeholder': 'Choose a Place...',
             'tabindex': '2'
         }));
         $("#add_event_placepicker").chosen();
@@ -418,7 +418,7 @@ function load_planner(){
         $('#add_event_peoplepicker_wrapper').html(multi_select_tmpl({
             'options': people_data,
             'id': 'add_event_peoplepicker',
-            'placeholder': ' ',
+            'placeholder': 'Choose Attendees...',
             'tabindex': '3'
         }));
         $("#add_event_peoplepicker").chosen();
@@ -986,7 +986,7 @@ function load_settings_notifications(){
             'options': role_data,
             'id': 'add_rule_peoplepicker',
             'class': 'req-input',
-            'placeholder': 'select roles',
+            'placeholder': 'All Users',
             'tabindex': '1'
         }));
         $("#add_rule_peoplepicker").chosen();
