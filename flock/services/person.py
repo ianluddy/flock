@@ -13,6 +13,7 @@ def invite(email, sender_id):
 
     mail.invite(
         email,
+        recipient.name.split(" ")[0],
         db.person_get(user_id=sender_id).name,
         token
     )

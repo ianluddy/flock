@@ -7,7 +7,8 @@ import os
 
 def reset(email):
     new_password = db.reset_user(email)
-    mail.reset(email, new_password)
+    recipient = db.person_get(email=email)
+    mail.reset(email, recipient.name.split(" ")[0], new_password)
 
 def upload_image(user_id, input_file):
     extension = input_file.filename.split('.')[-1]

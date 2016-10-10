@@ -51,11 +51,6 @@ class Role(Document, Base):
 
 class Person(Document, Base):
     # TODO - allow email to be registered with multiple companies
-    meta = {
-        'indexes': [
-            {'fields': ('company', 'name'), 'unique': True}
-        ]
-    }
     id = SequenceField(primary_key=True)
     email = StringField(unique=True, nullable=False)
     phone = StringField(nullable=True)

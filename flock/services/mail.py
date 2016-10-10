@@ -23,7 +23,7 @@ def send(recipient, subject, title, content, button_link, button_caption):
         "to": recipient,
         "subject": subject,
         "html": html,
-        "text": ""
+        "text": "Please enable HTML emails."
     }
 
     requests.post(
@@ -32,11 +32,12 @@ def send(recipient, subject, title, content, button_link, button_caption):
         data=data
     )
 
-
-def reset(recipient, new_password):
+@celery.task
+def reset(recipient, recipient_name, new_password):
     subject = "Your Password has been reset"
     title = "Your Password was reset!"
-    content = u"Your Password has been reset.\nYour new Password is <b>{}</b>\n\nFollow this link to login with your new password".format(
+    content = u"Hi {},\n\nYour Password has been reset.\nYour new Password is <b>{}</b>\n\nFollow this link to login with your new password".format(
+        recipient_name,
         new_password)
     button_link = 'http://app.tryflock.com/login'
     button_caption = 'Login to Flock'
@@ -44,10 +45,11 @@ def reset(recipient, new_password):
     send.delay(recipient, subject, title, content, button_link, button_caption)
 
 
-def invite(recipient, sender, token):
+@celery.task
+def invite(recipient, recipient_name, sender, token):
     subject = u"{} has invited you to use Flock".format(sender)
     title = "Come check out the Flock App!"
-    content = u"<b>{}</b> has invited you to use Flock.\nClick the button below to log in.".format(sender)
+    content = u"Hi {},\n\n<b>{}</b> has invited you to use Flock.\nClick the button below to log in.".format(recipient_name, sender)
     button_link = u"http://app.tryflock.com/activate/{}".format(token)
     button_caption = "Login to Flock"
 
