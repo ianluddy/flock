@@ -14,9 +14,17 @@ PERMISSIONS = {
 }
 
 # TODO - use non dev server
+"""
 MAIL_AUTH = ("api", "key-97da181732b95a21257c270bd2215529")
 MAIL_SERVER = "https://api.mailgun.net/v3/sandboxd4ff99d2df0b4dbbb94cc9e08a0391d1.mailgun.org/messages"
 MAIL_SENDER = "Flock Notifications <notifications@tryflock.com>"
+"""
+
+# TODO - use non dev server
+MAIL_AUTH = ("api", "key-97da181732b95a21257c270bd2215529")
+MAIL_SERVER = "https://api.mailgun.net/v3/tryflock.com/messages"
+MAIL_SENDER = "Flock Notifications <notifications@tryflock.com>"
+
 
 PROFILE_IMAGE_DIR = "img/profile/"
 PROFILE_IMAGE_TYPES = ['png', 'jpg', 'gif', 'jpeg']
